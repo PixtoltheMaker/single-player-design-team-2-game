@@ -1,0 +1,106 @@
+[gd_scene format=3 uid="uid://ppqi1v4d3cp6"]
+
+[ext_resource type="Script" uid="uid://cydf2atyihvli" path="res://GameManager/Card/card.gd" id="1_e46js"]
+[ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/Dragon.tres" id="2_1er02"]
+[ext_resource type="Texture2D" uid="uid://3cvw3306yxon" path="res://GameManager/Card/Type/dragons/art/red dragon.png" id="3_yifny"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e46js"]
+bg_color = Color(0.08549061, 0.32312632, 0.99999994, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0, 0, 0, 1)
+
+[node name="card" type="Control" unique_id=953183884]
+custom_minimum_size = Vector2(160, 220)
+custom_maximum_size = Vector2(180, 240)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e46js")
+data = ExtResource("2_1er02")
+
+[node name="Background" type="Panel" parent="." unique_id=1510575102]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_e46js")
+
+[node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -55.0
+offset_top = -81.0
+offset_right = 55.0
+offset_bottom = 54.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_yifny")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="UpValue" type="Label" parent="." unique_id=1294770993]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 175.0
+offset_bottom = 40.0
+theme_override_font_sizes/font_size = 24
+text = "A"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LeftValue" type="Label" parent="." unique_id=1461346970]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 40.0
+offset_bottom = 201.0
+theme_override_font_sizes/font_size = 24
+text = "8"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightValue" type="Label" parent="." unique_id=158653125]
+layout_mode = 0
+offset_left = 140.0
+offset_top = 5.0
+offset_right = 175.0
+offset_bottom = 201.0
+theme_override_font_sizes/font_size = 24
+text = "7"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DownValue" type="Label" parent="." unique_id=1919193165]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 174.0
+offset_right = 175.0
+offset_bottom = 209.0
+theme_override_font_sizes/font_size = 24
+text = "6"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="." unique_id=1529218321]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 201.0
+offset_right = 175.0
+offset_bottom = 235.0
+theme_override_font_sizes/font_size = 24
+text = "RED DRAGON"
+horizontal_alignment = 1
+vertical_alignment = 2

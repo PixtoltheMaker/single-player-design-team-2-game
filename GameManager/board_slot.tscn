@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://dmnro40lw3cq8"]
+
+[ext_resource type="Script" uid="uid://binr72a1p1koc" path="res://GameManager/board_slot.gd" id="1_f7dey"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lbc16"]
+bg_color = Color(0.47007585, 0.47007585, 0.47007585, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.047557652, 0.04755766, 0.047557585, 1)
+
+[node name="BoardSlot" type="Panel" unique_id=1330985163]
+custom_minimum_size = Vector2(160, 200)
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lbc16")
+script = ExtResource("1_f7dey")

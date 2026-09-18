@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://brak2ksrgiom1"]
+
+[ext_resource type="Script" uid="uid://b20o6xviyx7dm" path="res://GameManager/Card/CardData.gd" id="1_b1nn4"]
+[ext_resource type="Texture2D" uid="uid://3cvw3306yxon" path="res://GameManager/Card/Type/dragons/art/red dragon.png" id="1_qrwnk"]
+
+[resource]
+script = ExtResource("1_b1nn4")
+card_name = "Red Dragon"
+artwork = ExtResource("1_qrwnk")
+up = 8
+right = 7
+down = 6
+left = 8
+metadata/_custom_type_script = "uid://b20o6xviyx7dm"

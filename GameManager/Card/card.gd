@@ -1,0 +1,34 @@
+class_name GameCard
+extends Control
+
+
+@export var data: CardData
+
+var owner_id: int = 0
+var board_position: Vector2i = Vector2i(-1, -1)
+
+
+@onready var artwork: TextureRect = $Artwork
+@onready var up_value: Label = $UpValue
+@onready var right_value: Label = $RightValue
+@onready var down_value: Label = $DownValue
+@onready var left_value: Label = $LeftValue
+@onready var name_label: Label = $NameLabel
+
+
+func _ready() -> void:
+	update_card()
+
+
+func update_card() -> void:
+	if data == null:
+		return
+
+	name_label.text = data.card_name
+
+	up_value.text = str(data.up)
+	right_value.text = str(data.right)
+	down_value.text = str(data.down)
+	left_value.text = str(data.left)
+
+	artwork.texture = data.artwork
