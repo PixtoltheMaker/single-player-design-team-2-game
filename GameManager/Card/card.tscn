@@ -1,14 +1,17 @@
 [gd_scene format=3 uid="uid://ppqi1v4d3cp6"]
 
 [ext_resource type="Script" uid="uid://cydf2atyihvli" path="res://GameManager/Card/card.gd" id="1_e46js"]
-[ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/Dragon.tres" id="2_1er02"]
-[ext_resource type="Texture2D" uid="uid://bbw3k5tjptt4h" path="res://GameManager/Card/Art/card.png" id="3_nl4ll"]
+[ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/RedDragon.tres" id="2_1er02"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nl4ll"]
 bg_color = Color(0.038529627, 0.2630339, 0.9408299, 1)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_yifny"]
-texture = ExtResource("3_nl4ll")
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dsbpe"]
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0, 0, 0, 1)
 
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
@@ -28,8 +31,8 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 6.0
-offset_top = 7.0
-offset_right = -7.0
+offset_top = 5.0
+offset_right = -5.0
 offset_bottom = -6.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -44,7 +47,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_yifny")
+theme_override_styles/panel = SubResource("StyleBoxFlat_dsbpe")
 
 [node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
 layout_mode = 1
@@ -65,10 +68,10 @@ stretch_mode = 5
 
 [node name="UpValue" type="Label" parent="." unique_id=1294770993]
 layout_mode = 0
-offset_left = 78.0
-offset_top = -2.0
-offset_right = 100.0
-offset_bottom = 26.0
+offset_left = 6.0
+offset_top = 5.0
+offset_right = 175.0
+offset_bottom = 33.0
 theme_override_font_sizes/font_size = 20
 text = "A"
 horizontal_alignment = 1
@@ -77,9 +80,9 @@ vertical_alignment = 1
 [node name="LeftValue" type="Label" parent="." unique_id=1461346970]
 layout_mode = 0
 offset_left = 6.0
-offset_top = 84.0
-offset_right = 30.0
-offset_bottom = 112.0
+offset_top = 5.0
+offset_right = 34.0
+offset_bottom = 234.0
 theme_override_font_sizes/font_size = 20
 text = "8"
 horizontal_alignment = 1
@@ -87,10 +90,10 @@ vertical_alignment = 1
 
 [node name="RightValue" type="Label" parent="." unique_id=158653125]
 layout_mode = 0
-offset_left = 145.0
-offset_top = 81.0
-offset_right = 180.0
-offset_bottom = 115.0
+offset_left = 148.0
+offset_top = 5.0
+offset_right = 176.0
+offset_bottom = 235.0
 theme_override_font_sizes/font_size = 20
 text = "7"
 horizontal_alignment = 1
@@ -98,9 +101,9 @@ vertical_alignment = 1
 
 [node name="DownValue" type="Label" parent="." unique_id=1919193165]
 layout_mode = 0
-offset_left = 78.0
+offset_left = 6.0
 offset_top = 183.0
-offset_right = 100.0
+offset_right = 175.0
 offset_bottom = 211.0
 theme_override_font_sizes/font_size = 20
 text = "6"
@@ -109,10 +112,10 @@ vertical_alignment = 1
 
 [node name="NameLabel" type="Label" parent="." unique_id=1529218321]
 layout_mode = 0
-offset_left = 34.0
-offset_top = 205.0
-offset_right = 145.0
-offset_bottom = 229.0
+offset_left = 6.0
+offset_top = 208.0
+offset_right = 175.0
+offset_bottom = 236.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 17
 text = "RED DRAGON"

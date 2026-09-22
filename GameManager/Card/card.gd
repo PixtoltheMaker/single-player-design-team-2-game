@@ -31,12 +31,35 @@ func _gui_input(event: InputEvent) -> void:
 func update_card() -> void:
 	if data == null:
 		return
-
 	name_label.text = data.card_name
-
 	up_value.text = str(data.up)
 	right_value.text = str(data.right)
 	down_value.text = str(data.down)
 	left_value.text = str(data.left)
-
 	artwork.texture = data.artwork
+
+
+func set_card_owner(new_owner: int) -> void:
+	owner_id = new_owner
+	update_owner_visual()
+
+
+func update_owner_visual() -> void:
+	if owner_id == 0:
+		modulate = Color(0.7, 0.8, 1.0)
+	else:
+		modulate = Color(1.0, 0.7, 0.7)
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
