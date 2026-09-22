@@ -2,6 +2,10 @@
 
 [ext_resource type="PackedScene" uid="uid://dmnro40lw3cq8" path="res://GameManager/board_slot.tscn" id="1_1ipnq"]
 [ext_resource type="Script" uid="uid://ps0ncocjuvj1" path="res://GameManager/game.gd" id="1_8uba0"]
+[ext_resource type="PackedScene" uid="uid://ppqi1v4d3cp6" path="res://GameManager/Card/card.tscn" id="3_ry4gh"]
+[ext_resource type="Resource" uid="uid://cjinlv1qdvl2f" path="res://GameManager/Card/Type/monster/monster.tres" id="4_xskei"]
+[ext_resource type="Resource" uid="uid://d38ttqf7iet6x" path="res://GameManager/Card/Type/humanoid/humanoid.tres" id="5_dsbpe"]
+[ext_resource type="Resource" uid="uid://b8n3srx6y85fk" path="res://GameManager/Card/Type/aberrations/Aberrations.tres" id="6_gpak1"]
 
 [node name="game" type="Control" unique_id=1807526743]
 layout_mode = 3
@@ -19,7 +23,36 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.9166399, 0.91663986, 0.9166398, 1)
+color = Color(0.21950102, 0.21950102, 0.21950102, 1)
+
+[node name="OpponentHand" type="VBoxContainer" parent="." unique_id=646436207]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.017
+anchor_bottom = 0.031000001
+offset_left = 984.0
+offset_top = 2.0
+offset_right = 1124.416
+offset_bottom = 1097.912
+
+[node name="card1" parent="OpponentHand" unique_id=953183884 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+
+[node name="card2" parent="OpponentHand" unique_id=1009698728 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("4_xskei")
+
+[node name="card3" parent="OpponentHand" unique_id=1299776937 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("5_dsbpe")
+
+[node name="card4" parent="OpponentHand" unique_id=43546484 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("6_gpak1")
+
+[node name="card5" parent="OpponentHand" unique_id=1922234138 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("5_dsbpe")
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1170509071]
 layout_mode = 1
@@ -67,3 +100,27 @@ slot_index = 7
 [node name="Slot8" parent="CenterContainer/Board" unique_id=540948960 instance=ExtResource("1_1ipnq")]
 layout_mode = 2
 slot_index = 8
+
+[node name="PlayerHand" type="VBoxContainer" parent="." unique_id=9067640]
+layout_mode = 0
+offset_right = 203.0
+offset_bottom = 1116.0
+
+[node name="card1" parent="PlayerHand" unique_id=1468111689 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+
+[node name="card2" parent="PlayerHand" unique_id=790538994 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("4_xskei")
+
+[node name="card3" parent="PlayerHand" unique_id=431463804 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("5_dsbpe")
+
+[node name="card4" parent="PlayerHand" unique_id=1101321276 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("6_gpak1")
+
+[node name="card5" parent="PlayerHand" unique_id=401886691 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("5_dsbpe")

@@ -1,6 +1,7 @@
 class_name GameCard
 extends Control
 
+signal card_clicked(card: GameCard)
 
 @export var data: CardData
 
@@ -18,6 +19,13 @@ var board_position: Vector2i = Vector2i(-1, -1)
 
 func _ready() -> void:
 	update_card()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				card_clicked.emit(self)
 
 
 func update_card() -> void:
