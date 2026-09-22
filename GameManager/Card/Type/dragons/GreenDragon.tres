@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://dgufqti6aabgk"]
+
+[ext_resource type="Script" uid="uid://b20o6xviyx7dm" path="res://GameManager/Card/CardData.gd" id="1_tj2v6"]
+
+[resource]
+script = ExtResource("1_tj2v6")
+card_name = "Red Dragon"
+up = 10
+right = 5
+down = 8
+left = 6
+metadata/_custom_type_script = "uid://b20o6xviyx7dm"
