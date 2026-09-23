@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://2cxly21l70kt"]
 
 [ext_resource type="Script" uid="uid://ciunxvq5t834o" path="res://GameManager/Map/run_map.gd" id="1_p812r"]
+[ext_resource type="Script" uid="uid://dbkya51y72epf" path="res://GameManager/Map/map_connections.gd" id="2_60efe"]
+[ext_resource type="PackedScene" uid="uid://bqbjvkosmwv82" path="res://GameManager/Map/map_room.tscn" id="2_qox44"]
+[ext_resource type="Script" uid="uid://badr2d1tneqjd" path="res://GameManager/Map/map_room.gd" id="3_qox44"]
 
 [node name="RunMap" type="Control" unique_id=486346604]
 layout_mode = 3
@@ -10,13 +13,48 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_p812r")
+room_scene = ExtResource("2_qox44")
 
-[node name="Connections" type="Control" parent="." unique_id=69455233]
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Background" type="ColorRect" parent="." unique_id=636416574]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Rooms" type="Control" parent="." unique_id=897018948]
-anchors_preset = 0
+[node name="MapPanel" type="Panel" parent="." unique_id=811612376]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 120.0
+offset_right = 1600.0
+offset_bottom = 720.0
+
+[node name="ConnectionLines" type="Control" parent="MapPanel" unique_id=69455233]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_60efe")
+
+[node name="Rooms" type="Button" parent="MapPanel" unique_id=557390947]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_qox44")
+
+[node name="TitleLabel" type="Label" parent="." unique_id=1130979502]
+layout_mode = 0
 offset_right = 40.0
-offset_bottom = 40.0
+offset_bottom = 23.0
+
+[node name="RoomInfoLabel" type="Label" parent="." unique_id=1332105677]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

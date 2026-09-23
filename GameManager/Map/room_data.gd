@@ -21,3 +21,4 @@ enum RoomType {
 var connections: Array[RoomData] = []
 var completed: bool = false
 var available: bool = false
+var visual_offset: Vector2 = Vector2.ZERO
