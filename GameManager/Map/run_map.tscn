@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://2cxly21l70kt"]
+
+[ext_resource type="Script" uid="uid://ciunxvq5t834o" path="res://GameManager/Map/run_map.gd" id="1_p812r"]
+
+[node name="RunMap" type="Control" unique_id=486346604]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_p812r")
+
+[node name="Connections" type="Control" parent="." unique_id=69455233]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Rooms" type="Control" parent="." unique_id=897018948]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0

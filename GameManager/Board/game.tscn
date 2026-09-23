@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c3jxj7kn5uyu8"]
 
-[ext_resource type="PackedScene" uid="uid://dmnro40lw3cq8" path="res://GameManager/board_slot.tscn" id="1_1ipnq"]
-[ext_resource type="Script" uid="uid://ps0ncocjuvj1" path="res://GameManager/game.gd" id="1_8uba0"]
+[ext_resource type="PackedScene" uid="uid://dmnro40lw3cq8" path="res://GameManager/Board/board_slot.tscn" id="1_1ipnq"]
+[ext_resource type="Script" uid="uid://ps0ncocjuvj1" path="res://GameManager/Board/game.gd" id="1_8uba0"]
 [ext_resource type="PackedScene" uid="uid://ppqi1v4d3cp6" path="res://GameManager/Card/card.tscn" id="3_ry4gh"]
 [ext_resource type="Resource" uid="uid://bpmhvg34pyxsx" path="res://GameManager/Card/Type/plants/Pincher.tres" id="3_xxdnd"]
 [ext_resource type="Resource" uid="uid://bfv57woeiaaww" path="res://GameManager/Card/Type/outsider/Angel.tres" id="4_mjqcq"]
@@ -160,3 +160,34 @@ offset_left = 551.0
 offset_top = 312.0
 offset_right = 591.0
 offset_bottom = 335.0
+
+[node name="DifficultyPanel" type="PanelContainer" parent="UI" unique_id=2133821702]
+layout_mode = 0
+offset_left = 436.0
+offset_top = 414.0
+offset_right = 634.0
+offset_bottom = 591.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/DifficultyPanel" unique_id=1253664346]
+layout_mode = 2
+
+[node name="DifficultyLabel" type="Label" parent="UI/DifficultyPanel/VBoxContainer" unique_id=1227980745]
+layout_mode = 2
+text = "Difficulty"
+horizontal_alignment = 1
+
+[node name="Normal" type="Button" parent="UI/DifficultyPanel/VBoxContainer" unique_id=1908284282]
+layout_mode = 2
+text = "Normal"
+
+[node name="Medium" type="Button" parent="UI/DifficultyPanel/VBoxContainer" unique_id=1133821500]
+layout_mode = 2
+text = "Medium"
+
+[node name="Hard" type="Button" parent="UI/DifficultyPanel/VBoxContainer" unique_id=358026765]
+layout_mode = 2
+text = "Hard"
+
+[connection signal="pressed" from="UI/DifficultyPanel/VBoxContainer/Normal" to="." method="_on_normal_pressed"]
+[connection signal="pressed" from="UI/DifficultyPanel/VBoxContainer/Medium" to="." method="_on_medium_pressed"]
+[connection signal="pressed" from="UI/DifficultyPanel/VBoxContainer/Hard" to="." method="_on_hard_pressed"]

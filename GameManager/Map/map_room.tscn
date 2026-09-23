@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bqbjvkosmwv82"]
+
+[ext_resource type="Script" uid="uid://badr2d1tneqjd" path="res://GameManager/map_room.gd" id="1_vwyg3"]
+
+[node name="MapRoom" type="Button" unique_id=1262594825]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_vwyg3")
