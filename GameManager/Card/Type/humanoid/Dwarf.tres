@@ -4,4 +4,9 @@
 
 [resource]
 script = ExtResource("1_a1ty3")
+card_name = "Dwarf"
+up = 4
+right = 5
+down = 6
+left = 5
 metadata/_custom_type_script = "uid://b20o6xviyx7dm"

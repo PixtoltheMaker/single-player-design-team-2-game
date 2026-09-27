@@ -1,0 +1,122 @@
+extends Control
+
+@onready var item_choices: HBoxContainer = $ItemChoices
+
+var item_pool: Array[String] = [
+	
+	
+	
+	
+	
+]
+
+var offered_items: Array[ItemData] = []
+var offered_item_paths: Array[String] = []
+
+
+func _ready() -> void:
+	generate_item_choices()
+
+
+func generate_item_choices() -> void:
+	offered_items.clear()
+	offered_item_paths.clear()
+	var available_pool: Array[String] = item_pool.duplicate()
+	available_pool.shuffle()
+	var amount: int = mini(3, available_pool.size())
+
+	for i: int in range(amount):
+		var item_path: String = available_pool[i]
+		var resource: Resource = load(item_path)
+		if resource is ItemData:
+			var item: ItemData = resource as ItemData
+			offered_items.append(item)
+			offered_item_paths.append(item_path)
+	create_item_buttons()
+
+
+func create_item_buttons() -> void:
+	for child: Node in item_choices.get_children():
+		child.queue_free()
+	for i: int in range(offered_items.size()):
+		var item: ItemData = offered_items[i]
+		var container := VBoxContainer.new()
+		container.custom_minimum_size = Vector2(220, 250)
+		item_choices.add_child(container)
+		# Item name
+		var name_label := Label.new()
+		name_label.text = item.item_name
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		container.add_child(name_label)
+		# Icon
+		var icon_rect := TextureRect.new()
+		icon_rect.texture = item.icon
+		icon_rect.custom_minimum_size = Vector2(128, 128)
+		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		container.add_child(icon_rect)
+		# Description
+		var description := Label.new()
+		description.text = item.description
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		container.add_child(description)
+		# Choose button
+		var choose_button := Button.new()
+		choose_button.text = "Choose"
+		choose_button.pressed.connect(_on_item_chosen.bind(i))
+		container.add_child(choose_button)
+
+
+func _on_item_chosen(index: int) -> void:
+	if index < 0:
+		return
+	if index >= offered_item_paths.size():
+		return
+	var item_path: String = offered_item_paths[index]
+	var item: ItemData = offered_items[index]
+	print("Selected item: ", item.item_name)
+	RunManager.add_item(item_path)
+	finish_item_room()
+
+
+func finish_item_room() -> void:
+	RunManager.complete_selected_room()
+	get_tree().change_scene_to_file("res://GameManager/map/RunMap.tscn")
+
+
+func _on_skip_button_pressed() -> void:
+	finish_item_room()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#

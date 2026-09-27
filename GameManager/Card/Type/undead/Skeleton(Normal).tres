@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_o1w2r")
+card_name = "Normal Skeleton "
 up = 5
 right = 4
 down = 2

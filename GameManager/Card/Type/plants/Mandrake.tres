@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_6ildb")
+card_name = "Mandrake"
 up = 4
 right = 5
 down = 7

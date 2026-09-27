@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_a06ta")
+card_name = "Trap"
 up = 4
 right = 5
 down = 7

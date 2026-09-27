@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_clmkx")
+card_name = "Insects"
 up = 3
 right = 4
 down = 2

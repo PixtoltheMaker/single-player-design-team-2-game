@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_o0lnl")
+card_name = "Abalith"
 up = 6
 right = 7
 down = 4

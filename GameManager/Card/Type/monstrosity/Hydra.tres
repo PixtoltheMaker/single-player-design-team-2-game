@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_v6u8f")
+card_name = "Hydra"
 up = 6
 right = 4
 down = 6

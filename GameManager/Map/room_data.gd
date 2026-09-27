@@ -13,6 +13,7 @@ enum RoomType {
 	BOSS
 }
 
+var id: int = -1
 
 @export var room_type: RoomType = RoomType.COMBAT
 @export var column: int = 0

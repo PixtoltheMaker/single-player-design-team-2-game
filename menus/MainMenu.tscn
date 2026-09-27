@@ -1,0 +1,105 @@
+[gd_scene format=3 uid="uid://dveb0xx8ynk8q"]
+
+[ext_resource type="Script" uid="uid://ccgowgdtbuphy" path="res://menus/main_menu.gd" id="1_ct8su"]
+
+[node name="MainMenu" type="Control" unique_id=2070220192]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ct8su")
+
+[node name="background" type="ColorRect" parent="." unique_id=979156898]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TitleArea" type="VBoxContainer" parent="." unique_id=792947005]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 56.0
+grow_horizontal = 2
+
+[node name="TitleLabel" type="Label" parent="TitleArea" unique_id=1702677720]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 60
+text = "Delver's Gambit"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="TitleArea" unique_id=1215839630]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 40
+text = "Build Your Deck. Choose Your Path. Defeat the Bosses."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuPanel" type="PanelContainer" parent="." unique_id=1677950995]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -28.0
+offset_right = 20.0
+offset_bottom = 28.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuPanel" unique_id=2107605320]
+layout_mode = 2
+
+[node name="NewRunButton" type="Button" parent="MenuPanel/VBoxContainer" unique_id=630188853]
+layout_mode = 2
+text = "NEW RUN"
+
+[node name="ContinueButton" type="Button" parent="MenuPanel/VBoxContainer" unique_id=928587887]
+layout_mode = 2
+text = "CONTINUE RUN"
+
+[node name="CollectionButton" type="Button" parent="MenuPanel/VBoxContainer" unique_id=2116928058]
+layout_mode = 2
+text = "CARD COLLECTION"
+
+[node name="OptionsButton" type="Button" parent="MenuPanel/VBoxContainer" unique_id=1648083374]
+layout_mode = 2
+text = "OPTIONS"
+
+[node name="QuitButton" type="Button" parent="MenuPanel/VBoxContainer" unique_id=627768160]
+layout_mode = 2
+text = "QUIT"
+
+[node name="VersionLabel" type="Label" parent="." unique_id=1326601945]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -127.0
+offset_top = -34.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "Version 0.1"
+
+[connection signal="pressed" from="MenuPanel/VBoxContainer/NewRunButton" to="." method="_on_new_run_button_pressed"]
+[connection signal="pressed" from="MenuPanel/VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="MenuPanel/VBoxContainer/CollectionButton" to="." method="_on_collection_button_pressed"]
+[connection signal="pressed" from="MenuPanel/VBoxContainer/OptionsButton" to="." method="_on_options_button_pressed"]
+[connection signal="pressed" from="MenuPanel/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

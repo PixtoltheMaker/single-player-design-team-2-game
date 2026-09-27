@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_psx03")
+card_name = "Birds"
 up = 3
 right = 4
 down = 2

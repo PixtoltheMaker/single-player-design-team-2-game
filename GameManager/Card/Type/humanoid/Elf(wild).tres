@@ -4,4 +4,9 @@
 
 [resource]
 script = ExtResource("1_m3ysc")
+card_name = "Wild Elf"
+up = 4
+right = 4
+down = 4
+left = 4
 metadata/_custom_type_script = "uid://b20o6xviyx7dm"

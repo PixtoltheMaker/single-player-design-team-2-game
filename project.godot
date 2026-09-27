@@ -11,13 +11,17 @@ config_version=5
 [application]
 
 config/name="Delver's Gambit"
-run/main_scene="uid://c3jxj7kn5uyu8"
+run/main_scene="uid://dveb0xx8ynk8q"
 config/features=PackedStringArray("4.7", "Forward Plus")
+
+[autoload]
+
+RunManager="*uid://3yjmfqhkkb0c"
 
 [display]
 
-window/size/viewport_width=1920
-window/size/viewport_height=1080
+window/size/viewport_width=1680
+window/size/viewport_height=1050
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

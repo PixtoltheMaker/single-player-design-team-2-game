@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_dqwmm")
+card_name = "bulette"
 up = 6
 right = 4
 down = 6

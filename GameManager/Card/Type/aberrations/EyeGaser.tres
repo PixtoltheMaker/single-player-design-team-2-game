@@ -4,4 +4,9 @@
 
 [resource]
 script = ExtResource("1_uv0gn")
+card_name = "EyeGaser"
+up = 7
+right = 6
+down = 5
+left = 6
 metadata/_custom_type_script = "uid://b20o6xviyx7dm"

@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_de40t")
+card_name = "Pincher"
 up = 4
 right = 5
 down = 7

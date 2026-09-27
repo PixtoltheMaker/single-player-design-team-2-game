@@ -4,8 +4,9 @@
 
 [resource]
 script = ExtResource("1_qk820")
-up = 6
-right = 6
+card_name = "Angel"
+up = 7
+right = 8
 down = 6
-left = 6
+left = 7
 metadata/_custom_type_script = "uid://b20o6xviyx7dm"

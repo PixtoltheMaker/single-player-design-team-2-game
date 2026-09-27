@@ -1,0 +1,32 @@
+class_name DeckCardButton
+extends Button
+
+signal card_pressed(card_path: String)
+
+var card_path: String = ""
+var card_data: CardData = null
+
+@onready var artwork: TextureRect = $VBoxContainer/Artwork
+@onready var name_label: Label = $VBoxContainer/NameLabel
+@onready var values_label: Label = $VBoxContainer/ValuesLabel
+
+
+func _ready() -> void:
+	custom_minimum_size = Vector2(180.0, 240.0)
+
+
+func setup(path: String, data: CardData) -> void:
+	card_path = path
+	card_data = data
+	name_label.text = card_data.card_name
+	if card_data.artwork != null:
+		artwork.texture = card_data.artwork
+	else:
+		print("WARNING: No artwork for ", card_data.card_name)
+	values_label.text = ("↑ " + str(card_data.up) + "  → " + str(card_data.right) + "\n" + "↓ " + str(card_data.down) + "  ← " + str(card_data.left))
+
+
+func _pressed() -> void:
+	if card_path.is_empty():
+		return
+	card_pressed.emit(card_path)
