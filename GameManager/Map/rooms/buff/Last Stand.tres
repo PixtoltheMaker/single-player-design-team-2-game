@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_kbfg3")
+buff_id = "last_stand"
+buff_name = "last stand"
+description = "If you lose, don't lose HP"
 metadata/_custom_type_script = "uid://dfcreymgldgpq"

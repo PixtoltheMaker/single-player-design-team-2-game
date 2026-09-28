@@ -9,12 +9,12 @@ var total_columns: int = 0
 
 var encounter_columns_per_act: Array[int] = []
 
-
-@onready var rooms_container: Control = $MapPanel/Rooms
-@onready var connection_lines: MapConnections = $MapPanel/ConnectionLines
+@onready var map_panel: Panel = $MapScroll/MapPanel
+@onready var connection_lines: MapConnections = $MapScroll/MapPanel/ConnectionLines
+@onready var rooms_container: Control = $MapScroll/MapPanel/Rooms
 @onready var health_label: Label = $RunHUD/HBoxContainer/HealthLabel
 @onready var health_bar: ProgressBar = $RunHUD/HBoxContainer/HealthBar
-
+@onready var map_scroll: ScrollContainer = $MapScroll
 
 var room_nodes: Dictionary = {}
 var map_rooms: Array[RoomData] = []
@@ -25,6 +25,7 @@ func _ready() -> void:
 		RunManager.start_new_run()
 	if RunManager.map_data.is_empty():
 		print("Generating new map.")
+		calculate_run_layout()
 		generate_map()
 		create_connections()
 		unlock_starting_rooms()
@@ -33,9 +34,11 @@ func _ready() -> void:
 		print("Loading existing map.")
 		load_map_from_run_manager()
 		calculate_run_layout()
-		load_map_from_run_manager()
+	update_map_size()
 	create_map_visuals()
 	update_health_hud()
+	await get_tree().process_frame
+	scroll_to_available_column()
 
 
 func get_random_room_type() -> RoomData.RoomType:
@@ -60,38 +63,25 @@ func generate_map() -> void:
 	calculate_run_layout()
 	var next_id: int = 0
 	var current_column: int = 0
-	for act: int in range(
-		encounter_columns_per_act.size()):
-		var encounters_this_act: int = \
-			encounter_columns_per_act[act]
-		# Generate normal encounter columns.
-		for encounter: int in range(
-			encounters_this_act
-		):
+	for act: int in range(encounter_columns_per_act.size()):
+		var encounters_this_act: int = encounter_columns_per_act[act]
+		for encounter: int in range(encounters_this_act):
 			for row: int in range(ROWS):
 				var room := RoomData.new()
 				room.id = next_id
 				next_id += 1
 				room.column = current_column
 				room.row = row
-				room.room_type = \
-					get_room_type_for_column(
-						current_column
-					)
-				room.visual_offset = Vector2(
-					0.0,
-					randf_range(-25.0, 25.0)
-				)
+				room.room_type = get_room_type_for_column(current_column)
+				room.visual_offset = Vector2(0.0, randf_range(-25.0, 25.0))
 				map_rooms.append(room)
 			current_column += 1
-		# Generate boss for this act.
 		var boss := RoomData.new()
 		boss.id = next_id
 		next_id += 1
 		boss.column = current_column
 		boss.row = 1
-		boss.room_type = \
-			RoomData.RoomType.BOSS
+		boss.room_type = RoomData.RoomType.BOSS
 		map_rooms.append(boss)
 		current_column += 1
 
@@ -111,33 +101,42 @@ func get_room_type_for_column(column: int) -> RoomData.RoomType:
 func create_connections() -> void:
 	for room: RoomData in map_rooms:
 		room.connections.clear()
-		var next_column: int = room.column + 1
-		if next_column >= total_columns:
+	for column: int in range(total_columns - 1):
+		var current_rooms: Array[RoomData] = get_rooms_in_column(column)
+		var next_rooms: Array[RoomData] = get_rooms_in_column(column + 1)
+		if current_rooms.is_empty():
 			continue
-		var next_rooms: Array[RoomData] = get_rooms_in_column(next_column)
 		if next_rooms.is_empty():
 			continue
 		if next_rooms.size() == 1:
 			var boss: RoomData = next_rooms[0]
-			room.connections.append(boss)
+			for room: RoomData in current_rooms:
+				room.connections.append(boss)
 			continue
-		if room.room_type == RoomData.RoomType.BOSS:
-			for target: RoomData in next_rooms:
-				room.connections.append(target)
-			continue
-		var valid_targets: Array[RoomData] = []
 		for target: RoomData in next_rooms:
-			if abs(target.row - room.row) <= 1:
-				valid_targets.append(target)
-		if valid_targets.is_empty():
-			continue
-		var first_target: RoomData = valid_targets.pick_random()
-		room.connections.append(first_target)
-		if (valid_targets.size() > 1 and randf() < 0.40):
-			var second_target: RoomData = valid_targets.pick_random()
-			while second_target == first_target:
-				second_target = valid_targets.pick_random()
-			room.connections.append(second_target)
+			var valid_sources: Array[RoomData] = []
+			for source: RoomData in current_rooms:
+				if abs(source.row - target.row) <= 1:
+					valid_sources.append(source)
+			if valid_sources.is_empty():
+				continue
+			var source: RoomData = valid_sources.pick_random()
+			if not source.connections.has(target):
+				source.connections.append(target)
+		for source: RoomData in current_rooms:
+			var valid_targets: Array[RoomData] = []
+			for target: RoomData in next_rooms:
+				if abs(target.row - source.row) <= 1:
+					valid_targets.append(target)
+			if valid_targets.is_empty():
+				continue
+			if source.connections.is_empty():
+				var target: RoomData = valid_targets.pick_random()
+				source.connections.append(target)
+			if valid_targets.size() > 1 and randf() < 0.35:
+				var second_target: RoomData = valid_targets.pick_random()
+				if not source.connections.has(second_target):
+					source.connections.append(second_target)
 
 
 func get_rooms_in_column(column: int) -> Array[RoomData]:
@@ -150,8 +149,10 @@ func get_rooms_in_column(column: int) -> Array[RoomData]:
 
 func create_map_visuals() -> void:
 	room_nodes.clear()
-	for child in rooms_container.get_children():
+	for child: Node in rooms_container.get_children():
 		child.queue_free()
+	connection_lines.z_index = 0
+	rooms_container.z_index = 10
 	for room_data in map_rooms:
 		var room_node: MapRoom = room_scene.instantiate()
 		rooms_container.add_child(room_node)
@@ -159,7 +160,60 @@ func create_map_visuals() -> void:
 		room_node.position = get_room_position(room_data)
 		room_node.room_selected.connect(_on_room_selected)
 		room_nodes[room_data] = room_node
+	rooms_container.custom_minimum_size = map_panel.custom_minimum_size
+	connection_lines.custom_minimum_size = map_panel.custom_minimum_size
 	connection_lines.setup(map_rooms, room_nodes)
+
+
+func add_room_icon(room_node: MapRoom, room_data: RoomData) -> void:
+	var icon_container := VBoxContainer.new()
+	icon_container.name = "RoomIconContainer"
+	icon_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_container.set_anchors_preset(Control.PRESET_CENTER)
+	icon_container.position = Vector2(-45.0, -45.0)
+	icon_container.size = Vector2(90.0, 90.0)
+	icon_container.add_theme_constant_override("separation", 2)
+	icon_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	var icon := Label.new()
+	icon.name = "Icon"
+	icon.custom_minimum_size = Vector2(90.0, 48.0)
+	icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	icon.add_theme_font_size_override("font_size", 36)
+	var room_name := Label.new()
+	room_name.name = "RoomName"
+	room_name.custom_minimum_size = Vector2(90.0, 24.0)
+	room_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	room_name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	room_name.add_theme_font_size_override("font_size", 14)
+	match room_data.room_type:
+		RoomData.RoomType.COMBAT:
+			icon.text = "⚔"
+			room_name.text = "Combat"
+		RoomData.RoomType.ELITE:
+			icon.text = "★"
+			room_name.text = "Elite"
+		RoomData.RoomType.BOSS:
+			icon.text = "♛"
+			room_name.text = "Boss"
+		RoomData.RoomType.HEALING:
+			icon.text = "♥"
+			room_name.text = "Healing"
+		RoomData.RoomType.CARD:
+			icon.text = "♦"
+			room_name.text = "Card"
+		RoomData.RoomType.ITEM:
+			icon.text = "◆"
+			room_name.text = "Item"
+		RoomData.RoomType.BUFF:
+			icon.text = "✦"
+			room_name.text = "Buff"
+		RoomData.RoomType.RANDOM:
+			icon.text = "?"
+			room_name.text = "Random"
+	icon_container.add_child(icon)
+	icon_container.add_child(room_name)
+	room_node.add_child(icon_container)
 
 
 func unlock_starting_rooms() -> void:
@@ -223,12 +277,12 @@ func complete_room(room: RoomData) -> void:
 
 
 func get_room_position(room: RoomData) -> Vector2:
-	const START_X := 60.0
-	const START_Y := 70.0
-	const COLUMN_SPACING := 200.0
-	const ROW_SPACING := 170.0
-	var x := (START_X + room.column * COLUMN_SPACING)
-	var y := (START_Y + room.row * ROW_SPACING)
+	const START_X: float = 120.0
+	const START_Y: float = 70.0
+	const COLUMN_SPACING: float = 200.0
+	const ROW_SPACING: float = 170.0
+	var x: float = START_X + (float(room.column) * COLUMN_SPACING)
+	var y: float = START_Y + (float(room.row) * ROW_SPACING)
 	return Vector2(x, y)
 
 
@@ -315,7 +369,7 @@ func calculate_run_layout() -> void:
 	var boss_count: int = RunManager.run_boss_count
 	if boss_count <= 0:
 		boss_count = 1
-	var base_encounters: int = encounter_count / boss_count
+	var base_encounters: int = int(float(encounter_count) / float(boss_count))
 	var remainder: int = encounter_count % boss_count
 	total_columns = 0
 	for act: int in range(boss_count):
@@ -332,10 +386,31 @@ func is_boss_column(column: int) -> bool:
 	return ((column + 1) % section_size == 0)
 
 
+func update_map_size() -> void:
+	const COLUMN_SPACING: float = 200.0
+	const SIDE_MARGIN: float = 120.0
+	const MAP_HEIGHT: float = 600.0
+	var map_width: float = (SIDE_MARGIN * 2.0 + (float(maxi(total_columns - 1, 0)) * COLUMN_SPACING))
+	map_panel.custom_minimum_size = Vector2(map_width, MAP_HEIGHT)
+	print("Map size: ", map_panel.custom_minimum_size)
+	print("Total columns: ", total_columns)
 
 
-
-
+func scroll_to_available_column() -> void:
+	var target_column: int = 0
+	for room: RoomData in map_rooms:
+		if room.available:
+			target_column = maxi(target_column, room.column)
+			break
+	const COLUMN_SPACING: float = 200.0
+	const START_X: float = 120.0
+	var target_x: float = (START_X + (float(target_column) * COLUMN_SPACING))
+	var viewport_width: float = map_scroll.size.x
+	target_x -= viewport_width * 0.5
+	target_x = maxf(target_x, 0.0)
+	var max_scroll: float = (map_panel.size.x - viewport_width)
+	target_x = minf(target_x, maxf(max_scroll, 0.0))
+	map_scroll.scroll_horizontal = int(target_x)
 
 
 

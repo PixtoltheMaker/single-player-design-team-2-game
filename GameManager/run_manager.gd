@@ -2,6 +2,7 @@ extends Node
 
 const COLLECTION_SAVE_PATH: String = "user://collection.cfg"
 const BATTLE_HAND_SIZE: int = 5
+const DECK_SIZE: int = 5
 
 const BUFF_EXTRA_CARD_POWER: String = "extra_card_power"
 const BUFF_WEAKENING_CURSE: String = "weakening_curse"
@@ -19,17 +20,18 @@ var player_health: int = 5
 var player_max_health: int = 5
 var player_cards: Array[String] = []
 var card_collection: Array[String] = []
-const DECK_SIZE: int = 5
+
 var saved_deck: Array[String] = []
 var battle_hand: Array[String] = []
 
 
 var items: Array[String] = []
+var relics: Array[String] = []
+
 var active_combat_buffs: Array[String] = []
 var game_difficulty: int = 1
 var current_combat_type: String = ""
 var offered_card_paths: Array[String] = []
-
 var encounter_wins: int = 0
 var encounter_wins_required: int = 1
 var encounter_room_id: int = -1

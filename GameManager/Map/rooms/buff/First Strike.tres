@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_hrpjm")
+buff_id = "first_strike"
+buff_name = "First strike"
+description = "Your first card placed gets +2 to its chosen attack value."
 metadata/_custom_type_script = "uid://dfcreymgldgpq"

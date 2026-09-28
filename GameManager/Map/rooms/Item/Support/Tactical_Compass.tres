@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://6152a6b4v3kb"]
+
+[ext_resource type="Script" uid="uid://l53eav67i1ml" path="res://GameManager/Map/rooms/Item/item_data.gd" id="1_8jv3r"]
+
+[resource]
+script = ExtResource("1_8jv3r")
+item_id = "Tactical_Compass"
+item_name = "Tactical Compass"
+description = "Helps you prepare for dangerous encounters."
+metadata/_custom_type_script = "uid://l53eav67i1ml"

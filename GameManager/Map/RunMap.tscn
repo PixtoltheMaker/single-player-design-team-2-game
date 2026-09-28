@@ -4,6 +4,9 @@
 [ext_resource type="PackedScene" uid="uid://bqbjvkosmwv82" path="res://GameManager/Map/map_room.tscn" id="2_jy7cg"]
 [ext_resource type="Script" uid="uid://dbkya51y72epf" path="res://GameManager/Map/map_connections.gd" id="3_ucaq4"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_spwqw"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
 [node name="RunMap" type="Control" unique_id=486346604]
 layout_mode = 3
 anchors_preset = 15
@@ -22,14 +25,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MapPanel" type="Panel" parent="." unique_id=811612376]
-layout_mode = 0
-offset_left = 100.0
-offset_top = 120.0
-offset_right = 1600.0
-offset_bottom = 720.0
+[node name="MapScroll" type="ScrollContainer" parent="." unique_id=1425883970]
+custom_minimum_size = Vector2(0, 600)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+vertical_scroll_mode = 0
 
-[node name="ConnectionLines" type="Control" parent="MapPanel" unique_id=69455233]
+[node name="MapPanel" type="Panel" parent="MapScroll" unique_id=811612376]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_spwqw")
+
+[node name="ConnectionLines" type="Control" parent="MapScroll/MapPanel" unique_id=69455233]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -39,7 +49,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("3_ucaq4")
 
-[node name="Rooms" type="Control" parent="MapPanel" unique_id=76767292]
+[node name="Rooms" type="Control" parent="MapScroll/MapPanel" unique_id=76767292]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

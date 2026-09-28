@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bhkbp2qohuq8g"]
+
+[ext_resource type="Script" uid="uid://l53eav67i1ml" path="res://GameManager/Map/rooms/Item/item_data.gd" id="1_ohgji"]
+
+[resource]
+script = ExtResource("1_ohgji")
+item_id = "War_Blade"
+item_name = "War Blade"
+description = "Powerful attacks gain additional strength when surrounded by enemy cards."
+metadata/_custom_type_script = "uid://l53eav67i1ml"

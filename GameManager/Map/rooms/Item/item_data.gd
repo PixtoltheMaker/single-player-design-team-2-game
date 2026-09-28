@@ -9,11 +9,16 @@ enum ItemType {
 }
 
 @export_category("Item Information")
+@export var item_id: String = ""
 @export var item_name: String = "Item"
 @export_multiline var description: String = ""
 @export var icon: Texture2D
 
+@export_category("Item Type")
+@export var item_type: ItemType = ItemType.SUPPORT
 
-@export_category("Item Settings")
-@export var item_type: ItemType = ItemType.WEAPON
-@export var value: int = 0
+@export_category("Rarity")
+@export var is_relic: bool = false
+
+@export_category("Effect")
+@export var effect_value: int = 1

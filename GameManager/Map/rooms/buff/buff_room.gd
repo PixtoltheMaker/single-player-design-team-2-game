@@ -1,20 +1,16 @@
 extends Control
 
-@onready var buff_choices: HBoxContainer = $BuffChoices
+@onready var buff_choices: HBoxContainer = $MarginContainer/VBoxContainer/BuffChoices
 
 var buff_pool: Array[String] = [
-	
-	
-	
-	
-	
-	
-	
-	
+	"res://GameManager/Map/rooms/buff/First Strike.tres",
+	"res://GameManager/Map/rooms/buff/Last Stand.tres",
+	"res://GameManager/Map/rooms/buff/Power Surge.tres",
+	"res://GameManager/Map/rooms/buff/Tactical Insight.tres",
+	"res://GameManager/Map/rooms/buff/Weakening Curse.tres"
 ]
 
 var offered_buffs: Array[BuffData] = []
-var offered_buff_paths: Array[String] = []
 
 
 func _ready() -> void:
@@ -23,17 +19,33 @@ func _ready() -> void:
 
 func generate_buff_choices() -> void:
 	offered_buffs.clear()
-	offered_buff_paths.clear()
 	var available_pool: Array[String] = buff_pool.duplicate()
 	available_pool.shuffle()
 	var amount: int = mini(3, available_pool.size())
+	print("Trying to create ", amount, " buffs.")
 	for i: int in range(amount):
 		var buff_path: String = available_pool[i]
+		print("Loading buff: ", buff_path)
+		if not ResourceLoader.exists(buff_path):
+			push_error("BUFF FILE DOES NOT EXIST: " + buff_path)
+			continue
 		var resource: Resource = load(buff_path)
-		if resource is BuffData:
-			var buff: BuffData = resource as BuffData
-			offered_buffs.append(buff)
-			offered_buff_paths.append(buff_path)
+		if resource == null:
+			push_error("COULD NOT LOAD BUFF: " + buff_path)
+			continue
+		if not resource is BuffData:
+			push_error("NOT A BUFFDATA RESOURCE: " + buff_path)
+			continue
+		var buff: BuffData = resource as BuffData
+		# DEBUG INFORMATION
+		print("--------------------------------")
+		print("Loaded buff:")
+		print("ID: [", buff.buff_id, "]")
+		print("NAME: [", buff.buff_name, "]")
+		print("DESCRIPTION: [", buff.description, "]")
+		print("ICON: ", buff.icon)
+		print("--------------------------------")
+		offered_buffs.append(buff)
 	create_buff_buttons()
 
 
@@ -42,41 +54,44 @@ func create_buff_buttons() -> void:
 		child.queue_free()
 	for i: int in range(offered_buffs.size()):
 		var buff: BuffData = offered_buffs[i]
-		var container := VBoxContainer.new()
-		container.custom_minimum_size = Vector2(220, 250)
+		var container := PanelContainer.new()
+		container.custom_minimum_size = Vector2(260.0, 360.0)
 		buff_choices.add_child(container)
+		var content := VBoxContainer.new()
+		content.add_theme_constant_override("separation", 10)
+		container.add_child(content)
 		var name_label := Label.new()
 		name_label.text = buff.buff_name
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		container.add_child(name_label)
+		content.add_child(name_label)
 		var icon_rect := TextureRect.new()
 		icon_rect.texture = buff.icon
 		icon_rect.custom_minimum_size = Vector2(128, 128)
 		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon_rect.stretch_mode = \
 			TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		container.add_child(icon_rect)
+		content.add_child(icon_rect)
 		var description := Label.new()
 		description.text = buff.description
 		description.autowrap_mode = \
 			TextServer.AUTOWRAP_WORD_SMART
-		container.add_child(description)
+		content.add_child(description)
 		var choose_button := Button.new()
 		choose_button.text = "Choose"
 		choose_button.pressed.connect(_on_buff_chosen.bind(i))
-		container.add_child(choose_button)
+		content.add_child(choose_button)
 
 
 func _on_buff_chosen(index: int) -> void:
-	if index < 0:
+	if index < 0 or index >= offered_buffs.size():
+		push_error("Invalid buff index: " + str(index))
 		return
-	if index >= offered_buff_paths.size():
-		return
-	var buff_path: String = offered_buff_paths[index]
 	var buff: BuffData = offered_buffs[index]
 	print("Selected buff: ", buff.buff_name)
-	RunManager.add_buff(buff_path)
-	finish_buff_room()
+	print("Description: ", buff.description)
+	RunManager.add_combat_buff(buff.buff_id)
+	RunManager.complete_selected_room()
+	get_tree().change_scene_to_file("res://GameManager/Map/RunMap.tscn")
 
 
 func finish_buff_room() -> void:
@@ -88,10 +103,14 @@ func _on_skip_button_pressed() -> void:
 	finish_buff_room()
 
 
+func give_weakening_curse() -> void:
+	RunManager.add_combat_buff("weakening_curse")
+	print("Weakening Curse acquired!")
 
 
-
-
+func give_power_surge() -> void:
+	RunManager.add_combat_buff("extra_card_power")
+	print("Power Surge acquired!")
 
 
 

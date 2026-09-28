@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://bcoysm0duq2no"]
+
+[ext_resource type="Script" uid="uid://l53eav67i1ml" path="res://GameManager/Map/rooms/Item/item_data.gd" id="1_ct2hd"]
+
+[resource]
+script = ExtResource("1_ct2hd")
+item_id = "Lucky_Charm"
+item_name = "Lucky Charm"
+description = "Occasionally turns a close defeat into a successful defense."
+metadata/_custom_type_script = "uid://l53eav67i1ml"

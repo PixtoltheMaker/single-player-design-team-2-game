@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_21olh")
+buff_id = "weakening_curse"
+buff_name = "Weakening Curse"
+description = "Enemy cards have -1 to every side for the next combat."
 metadata/_custom_type_script = "uid://dfcreymgldgpq"

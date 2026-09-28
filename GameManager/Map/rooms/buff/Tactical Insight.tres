@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_bt7bh")
+buff_id = "tactical_insight"
+buff_name = "Tactical Insight"
+description = "Gain an advantage when choosing your cards for the next combat."
 metadata/_custom_type_script = "uid://dfcreymgldgpq"

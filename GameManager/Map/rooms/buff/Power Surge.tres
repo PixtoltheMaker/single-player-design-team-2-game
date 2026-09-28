@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_5tmgs")
+buff_id = "extra_card_power"
+buff_name = "Power Surge"
+description = "Your cards gain +1 to every side for the next combat."
 metadata/_custom_type_script = "uid://dfcreymgldgpq"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3 uid="uid://ce0wxt81mamko"]
+
+[ext_resource type="Script" uid="uid://l53eav67i1ml" path="res://GameManager/Map/rooms/Item/item_data.gd" id="1_d82bw"]
+
+[resource]
+script = ExtResource("1_d82bw")
+item_id = "Ancient_Sword"
+item_name = "Ancient Sword"
+description = "A legendary weapon that greatly strengthens your cards."
+item_type = 0
+is_relic = true
+effect_value = 2
+metadata/_custom_type_script = "uid://l53eav67i1ml"
