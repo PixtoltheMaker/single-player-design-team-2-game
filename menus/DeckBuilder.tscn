@@ -81,6 +81,7 @@ layout_mode = 2
 columns = 3
 
 [node name="DeckPanel" type="PanelContainer" parent="MarginContainer/VBoxContainer/Content" unique_id=1719934352]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Content/DeckPanel" unique_id=489554912]
@@ -89,6 +90,7 @@ layout_mode = 2
 [node name="DeckLabel" type="Label" parent="MarginContainer/VBoxContainer/Content/DeckPanel/VBoxContainer" unique_id=532187778]
 layout_mode = 2
 text = "CURRENT DECK"
+horizontal_alignment = 1
 
 [node name="DeckList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Content/DeckPanel/VBoxContainer" unique_id=36030352]
 layout_mode = 2
