@@ -18,6 +18,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.3779188, 0.37791887, 0.37791884, 1)
 
 [node name="ItemChoices" type="HBoxContainer" parent="." unique_id=1591199526]
 custom_minimum_size = Vector2(160, 220)
@@ -33,6 +34,7 @@ offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 15
 
 [node name="SkipButton" type="Button" parent="." unique_id=1836436348]
 layout_mode = 1

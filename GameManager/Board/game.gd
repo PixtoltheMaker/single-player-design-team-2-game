@@ -666,11 +666,11 @@ func handle_combat_draw() -> void:
 
 
 func handle_run_defeat() -> void:
-	run_defeated = true
-	result_label.text = "Run Over"
-	RunManager.player_defeated()
-	continue_button.text = "Game Over"
-	continue_button.show()
+	game_over = true
+	if has_node("GameOver"):
+		var game_over_menu := $GameOver as Control
+		if game_over_menu.has_method("show_game_over"):
+			game_over_menu.show_game_over("You ran out of health.")
 
 
 func update_encounter_progress() -> void:
@@ -902,7 +902,12 @@ func handle_bonus_cache_reward() -> void:
 	get_tree().change_scene_to_file("res://GameManager/Map/rooms/BonusCache/BonusCacheRoom.tscn")
 
 
-
+func show_game_over(reason: String) -> void:
+	game_over = true
+	if has_node("GameOver"):
+		var menu := $GameOver
+		if menu.has_method("show_game_over"):
+			menu.show_game_over(reason)
 
 
 

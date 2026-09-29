@@ -2,16 +2,12 @@
 
 [ext_resource type="Script" uid="uid://cydf2atyihvli" path="res://GameManager/Card/card.gd" id="1_e46js"]
 [ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/RedDragon.tres" id="2_1er02"]
+[ext_resource type="Texture2D" uid="uid://dxap5x47n8ngx" path="res://background/IMG_02524.png" id="3_yifny"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nl4ll"]
-bg_color = Color(0.038529627, 0.2630339, 0.9408299, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yifny"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dsbpe"]
-border_width_left = 5
-border_width_top = 5
-border_width_right = 5
-border_width_bottom = 5
-border_color = Color(0, 0, 0, 1)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nl4ll"]
+texture = ExtResource("3_yifny")
 
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
@@ -25,20 +21,6 @@ grow_vertical = 2
 script = ExtResource("1_e46js")
 data = ExtResource("2_1er02")
 
-[node name="Background" type="Panel" parent="." unique_id=229819882]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 6.0
-offset_top = 5.0
-offset_right = -5.0
-offset_bottom = -6.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_nl4ll")
-
 [node name="CardBackground" type="Panel" parent="." unique_id=1510575102]
 layout_mode = 1
 anchors_preset = 15
@@ -47,7 +29,21 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_dsbpe")
+theme_override_styles/panel = SubResource("StyleBoxFlat_yifny")
+
+[node name="Background" type="Panel" parent="." unique_id=229819882]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -9.0
+offset_top = -6.0
+offset_right = 9.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_nl4ll")
 
 [node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
 layout_mode = 1
@@ -67,22 +63,25 @@ expand_mode = 1
 stretch_mode = 5
 
 [node name="UpValue" type="Label" parent="." unique_id=1294770993]
+z_index = 1
 layout_mode = 0
-offset_left = 6.0
-offset_top = 5.0
-offset_right = 175.0
-offset_bottom = 33.0
+offset_left = 77.0
+offset_top = 17.0
+offset_right = 103.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
-text = "A"
+text = "10"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="LeftValue" type="Label" parent="." unique_id=1461346970]
 layout_mode = 0
-offset_left = 6.0
-offset_top = 5.0
-offset_right = 34.0
-offset_bottom = 234.0
+offset_left = 23.0
+offset_top = 106.0
+offset_right = 51.0
+offset_bottom = 134.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "8"
 horizontal_alignment = 1
@@ -90,10 +89,11 @@ vertical_alignment = 1
 
 [node name="RightValue" type="Label" parent="." unique_id=158653125]
 layout_mode = 0
-offset_left = 148.0
-offset_top = 5.0
-offset_right = 176.0
-offset_bottom = 235.0
+offset_left = 130.0
+offset_top = 105.0
+offset_right = 158.0
+offset_bottom = 133.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "7"
 horizontal_alignment = 1
@@ -101,10 +101,11 @@ vertical_alignment = 1
 
 [node name="DownValue" type="Label" parent="." unique_id=1919193165]
 layout_mode = 0
-offset_left = 6.0
-offset_top = 183.0
-offset_right = 175.0
-offset_bottom = 211.0
+offset_left = 78.0
+offset_top = 191.0
+offset_right = 103.0
+offset_bottom = 219.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "6"
 horizontal_alignment = 1
@@ -112,10 +113,10 @@ vertical_alignment = 1
 
 [node name="NameLabel" type="Label" parent="." unique_id=1529218321]
 layout_mode = 0
-offset_left = 6.0
-offset_top = 208.0
-offset_right = 175.0
-offset_bottom = 236.0
+offset_left = 13.0
+offset_top = 205.0
+offset_right = 182.0
+offset_bottom = 233.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 17
 text = "RED DRAGON"

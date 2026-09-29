@@ -35,7 +35,6 @@ func generate_item_choices() -> void:
 	var available_pool: Array[String] = item_pool.duplicate()
 	available_pool.shuffle()
 	var amount: int = mini(3, available_pool.size())
-
 	for i: int in range(amount):
 		var item_path: String = available_pool[i]
 		var resource: Resource = load(item_path)

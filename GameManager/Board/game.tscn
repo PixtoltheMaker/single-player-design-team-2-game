@@ -10,6 +10,8 @@
 [ext_resource type="Resource" uid="uid://b8n3srx6y85fk" path="res://GameManager/Card/Type/aberrations/Abalith.tres" id="6_gpak1"]
 [ext_resource type="Resource" uid="uid://pwkhvwft78qe" path="res://GameManager/Card/Type/vermin/Rats.tres" id="6_om1jj"]
 [ext_resource type="Resource" uid="uid://2s5pduvajxcj" path="res://GameManager/Card/Type/undead/Zombie.tres" id="10_mjqcq"]
+[ext_resource type="PackedScene" uid="uid://djgokqx2rcnyc" path="res://menus/PauseMenu.tscn" id="11_v7uax"]
+[ext_resource type="PackedScene" uid="uid://berp3osqgi5gs" path="res://menus/GameOver.tscn" id="12_fchye"]
 
 [node name="game" type="Control" unique_id=1807526743]
 layout_mode = 3
@@ -189,5 +191,11 @@ offset_right = 922.0
 offset_bottom = 871.0
 theme_override_font_sizes/font_size = 24
 text = "Continue"
+
+[node name="PauseMenu" parent="." unique_id=310477368 instance=ExtResource("11_v7uax")]
+layout_mode = 1
+
+[node name="GameOver" parent="." unique_id=196690564 instance=ExtResource("12_fchye")]
+layout_mode = 1
 
 [connection signal="pressed" from="UI/ContinueButton" to="." method="_on_continue_button_pressed"]

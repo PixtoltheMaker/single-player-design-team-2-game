@@ -16,6 +16,9 @@ func _ready() -> void:
 	card_choice.pressed.connect(_on_card_choice_pressed)
 	item_choice.pressed.connect(_on_item_choice_pressed)
 	continue_button.pressed.connect(_on_continue_pressed)
+	if get_random_card().is_empty():
+		card_choice.disabled = true
+		card_choice.text = "NO NEW CARDS"
 	continue_button.hide()
 
 
@@ -62,10 +65,14 @@ func give_item_reward() -> void:
 
 
 func get_random_card() -> String:
-	if RunManager.card_collection.is_empty():
+	var available_cards: Array[String] = []
+	for card_path: String in CardDatabase.ALL_CARDS:
+		if not RunManager.card_collection.has(card_path):
+			available_cards.append(card_path)
+	if available_cards.is_empty():
 		return ""
-	var index: int = randi_range(0, RunManager.card_collection.size() - 1)
-	return RunManager.card_collection[index]
+	var index: int = randi_range(0, available_cards.size() - 1)
+	return available_cards[index]
 
 
 func _on_continue_pressed() -> void:
