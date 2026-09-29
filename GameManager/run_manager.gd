@@ -1,5 +1,6 @@
 extends Node
 
+const RELIC_SAVE_PATH: String = "user://relics.cfg"
 const COLLECTION_SAVE_PATH: String = "user://collection.cfg"
 const BATTLE_HAND_SIZE: int = 5
 const DECK_SIZE: int = 5
@@ -24,9 +25,10 @@ var card_collection: Array[String] = []
 var saved_deck: Array[String] = []
 var battle_hand: Array[String] = []
 
-
 var items: Array[String] = []
 var relics: Array[String] = []
+
+var reward_points: int = 0
 
 var active_combat_buffs: Array[String] = []
 var game_difficulty: int = 1
@@ -36,9 +38,19 @@ var encounter_wins: int = 0
 var encounter_wins_required: int = 1
 var encounter_room_id: int = -1
 
+var iron_sword_used: bool = false
+var twin_blades_used: bool = false
+var guardian_plate_used: bool = false
+var chainmail_used: bool = false
+var lucky_charm_used: bool = false
+var guardian_relic_used: bool = false
+var phoenix_used_this_run: bool = false
+var first_capture_bonus: int = 0
+
 
 func _ready() -> void:
 	load_card_collection()
+	load_relics()
 
 
 func start_new_run() -> void:
@@ -254,6 +266,148 @@ func has_combat_buff(buff_id: String) -> bool:
 func consume_combat_buffs() -> void:
 	active_combat_buffs.clear()
 	print("Combat buffs cleared.")
+
+
+func save_relics() -> void:
+	var config := ConfigFile.new()
+	config.set_value("relics", "unlocked_relics", relics)
+	var error: Error = config.save(RELIC_SAVE_PATH)
+	if error != OK:
+		push_error("Failed to save relics. Error: " + str(error))
+		return
+	print("Permanent relics saved: ", relics)
+
+
+func load_relics() -> void:
+	var config := ConfigFile.new()
+	var error: Error = config.load(RELIC_SAVE_PATH)
+	if error != OK:
+		print("No relic save found.")
+		relics.clear()
+		return
+	var saved_relics: Variant = config.get_value("relics", "unlocked_relics", [])
+	relics.clear()
+	if saved_relics is Array:
+		for relic_path: Variant in saved_relics:
+			if relic_path is String:
+				var path: String = String(relic_path)
+				if ResourceLoader.exists(path):
+					relics.append(path)
+	print("Loaded permanent relics: ", relics)
+
+
+func give_item(item: ItemData) -> void:
+	if item == null:
+		return
+	var item_path: String = item.resource_path
+	if item_path.is_empty():
+		push_error("Item has no resource path.")
+		return
+	if item.is_relic:
+		add_relic(item_path)
+	else:
+		add_item(item_path)
+
+
+func add_item(item_path: String) -> void:
+	if item_path.is_empty():
+		return
+	if not ResourceLoader.exists(item_path):
+		push_error("Item does not exist: " + item_path)
+		return
+	if not items.has(item_path):
+		items.append(item_path)
+	print("Item obtained: ", item_path)
+
+
+func add_relic(relic_path: String) -> void:
+	if relic_path.is_empty():
+		return
+	if not ResourceLoader.exists(relic_path):
+		push_error("Relic does not exist: " + relic_path)
+		return
+	if relics.has(relic_path):
+		print("Relic already owned: ", relic_path)
+		return
+	relics.append(relic_path)
+	save_relics()
+	print("★ PERMANENT RELIC OBTAINED ★")
+	print(relic_path)
+
+
+func has_item(item_id: String) -> bool:
+	for item_path: String in items:
+		var item := load(item_path) as ItemData
+		if item != null and item.item_id == item_id:
+			return true
+	return false
+
+
+func has_relic(relic_id: String) -> bool:
+	for relic_path: String in relics:
+		var relic := load(relic_path) as ItemData
+		if relic != null and relic.item_id == relic_id:
+			return true
+	return false
+
+
+func reset_combat_item_state() -> void:
+	iron_sword_used = false
+	twin_blades_used = false
+	guardian_plate_used = false
+	chainmail_used = false
+	lucky_charm_used = false
+	guardian_relic_used = false
+	first_capture_bonus = 0
+
+
+func give_room_reward(base_reward: int) -> void:
+	var reward: int = base_reward
+	if has_item("coin_pouch"):
+		reward += 10
+	if has_relic("lucky_crown"):
+		reward += 10
+	reward_points += reward
+	print("Reward received: ", reward)
+	print("Total rewards: ", reward_points)
+
+
+func treasure_map_bonus_reward() -> bool:
+	if not has_item("treasure_map"):
+		return false
+	return randf() < 0.25
+
+
+func should_generate_bonus_reward() -> bool:
+	if treasure_map_bonus_reward():
+		return true
+	if has_relic("lucky_crown"):
+		return randf() < 0.20
+	return false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

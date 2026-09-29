@@ -67,6 +67,7 @@ var enemy_combat_value_bonus: int = 0
 
 
 func _ready() -> void:
+	RunManager.reset_combat_item_state()
 	for slot in board_container.get_children():
 		if slot is BoardSlot:
 			slot.slot_clicked.connect(_on_slot_clicked)
@@ -151,34 +152,46 @@ func check_direction(card: GameCard, target_position: Vector2i, direction: Strin
 		return
 	if enemy.owner_id == card.owner_id:
 		return
-	var attack_value: int = 0
-	var defense_value: int = 0
-	match direction:
-		"up":
-			attack_value = card.data.up
-			defense_value = enemy.data.down
-		"right":
-			attack_value = card.data.right
-			defense_value = enemy.data.left
-		"down":
-			attack_value = card.data.down
-			defense_value = enemy.data.up
-		"left":
-			attack_value = card.data.left
-			defense_value = enemy.data.right
-	if card.owner_id == PLAYER:
-		attack_value += combat_buff_value_bonus
-	if enemy.owner_id == COMPUTER:
-		defense_value += enemy_combat_value_bonus
-	print("Capture check: ", attack_value, " vs ", defense_value)
-	if attack_value > defense_value:
+	var attack_value: int = get_card_attack_power(card, direction)
+	var defense_value: int = get_card_defense_power(enemy, get_opposite_direction(direction))
+	print(card.data.card_name, " attacks ", enemy.data.card_name, " | ", attack_value, " vs ", defense_value)
+	var can_capture: bool = false
+	if not can_capture:
+		if card.owner_id == PLAYER:
+			if RunManager.has_item("twin_blades"):
+				if not RunManager.twin_blades_used:
+					RunManager.twin_blades_used = true
+					print("Twin Blades activated!")
+					var second_attack: int = attack_value + 1
+					if second_attack > defense_value:
+						capture_card(enemy, card.owner_id)
+					return
+	if card.owner_id == COMPUTER:
+		if enemy.owner_id == PLAYER:
+			if RunManager.has_item("lucky_charm"):
+				if not RunManager.lucky_charm_used:
+					if attack_value == defense_value + 1:
+						RunManager.lucky_charm_used = true
+						print("Lucky Charm prevented a capture!")
+						return
+	if card.owner_id == PLAYER and RunManager.has_relic("ancient_sword"):
+		can_capture = attack_value >= defense_value
+	else:
+		can_capture = attack_value > defense_value
+	if can_capture:
 		capture_card(enemy, card.owner_id)
 
 
 func capture_card(card: GameCard, new_owner: int) -> void:
+	if card == null:
+		return
+	if card.owner_id == PLAYER and new_owner == COMPUTER:
+		if guardian_relic_protects(card):
+			return
+		if guardian_plate_protects(card):
+			return
 	card.set_card_owner(new_owner)
 	print(card.data.card_name, " was captured!")
-	update_scores()
 
 
 func finish_turn() -> void:
@@ -688,6 +701,239 @@ func setup_combat_buffs() -> void:
 		enemy_combat_value_bonus = -1
 	print("Player combat bonus: ", combat_buff_value_bonus)
 	print("Enemy combat bonus: ", enemy_combat_value_bonus)
+
+
+func get_card_attack_power(card: GameCard, direction: String) -> int:
+	if card == null:
+		return 0
+	if card.data == null:
+		return 0
+	var power: int = 0
+	match direction:
+		"up":
+			power = card.data.up
+		"right":
+			power = card.data.right
+		"down":
+			power = card.data.down
+		"left":
+			power = card.data.left
+	if card.owner_id == PLAYER:
+		if RunManager.has_item("iron_sword"):
+			power += 1
+	if card.owner_id == PLAYER:
+		if RunManager.has_relic("ancient_sword"):
+			power += 2
+	if card.owner_id == PLAYER:
+		if RunManager.has_item("war_blade"):
+			var enemy_count: int = count_adjacent_enemies(card)
+			if enemy_count >= 2:
+				power += 1
+	return power
+
+
+func count_adjacent_enemies(card: GameCard) -> int:
+	if card == null:
+		return 0
+	var count: int = 0
+	var pos: Vector2i = card.board_position
+	var directions: Array[Vector2i] = [
+		Vector2i.UP, 
+		Vector2i.RIGHT, 
+		Vector2i.DOWN, 
+		Vector2i.LEFT
+		]
+	for direction: Vector2i in directions:
+		var enemy := get_card_at(pos + direction)
+		if enemy == null:
+			continue
+		if enemy.owner_id != card.owner_id:
+			count += 1
+	return count
+
+
+func get_card_defense_power(card: GameCard, direction: String) -> int:
+	if card == null:
+		return 0
+	if card.data == null:
+		return 0
+	var defense: int = 0
+	match direction:
+		"up":
+			defense = card.data.up
+		"right":
+			defense = card.data.right
+		"down":
+			defense = card.data.down
+		"left":
+			defense = card.data.left
+	if card.owner_id == PLAYER:
+		if RunManager.has_item("chainmail"):
+			if not RunManager.chainmail_used:
+				defense += 1
+	if card.owner_id == PLAYER:
+		if RunManager.has_relic("guardian_relic"):
+			defense += 2
+	return defense
+
+
+func get_opposite_direction(direction: String) -> String:
+	match direction:
+		"up":
+			return "down"
+		"right":
+			return "left"
+		"down":
+			return "up"
+		"left":
+			return "right"
+	return ""
+
+
+func get_strongest_player_card() -> GameCard:
+	var strongest: GameCard = null
+	var strongest_power: int = -1
+	for card in board:
+		if card == null:
+			continue
+		var game_card := card as GameCard
+		if game_card == null:
+			continue
+		if game_card.owner_id != PLAYER:
+			continue
+		if game_card.data == null:
+			continue
+		var total: int = (game_card.data.up + game_card.data.right + game_card.data.down + game_card.data.left)
+		if total > strongest_power:
+			strongest_power = total
+			strongest = game_card
+	return strongest
+
+
+func guardian_plate_protects(card: GameCard) -> bool:
+	if card == null:
+		return false
+	if RunManager.guardian_plate_used:
+		return false
+	if not RunManager.has_item("guardian_plate"):
+		return false
+	var strongest := get_strongest_player_card()
+	if strongest != card:
+		return false
+	RunManager.guardian_plate_used = true
+	print("Guardian Plate protected the strongest card!")
+	return true
+
+
+func guardian_relic_protects(card: GameCard) -> bool:
+	if card == null:
+		return false
+	if RunManager.guardian_relic_used:
+		return false
+	if not RunManager.has_relic("guardian_relic"):
+		return false
+	RunManager.guardian_relic_used = true
+	print("Guardian Relic prevented a capture!")
+	return true
+
+
+func get_scrying_lens_information() -> String:
+	if not RunManager.has_item("scrying_lens"):
+		return ""
+	var result: String = "Scrying Lens:\nEnemy Hand\n"
+	for card_path: String in get_enemy_card_paths():
+		var resource: Resource = load(card_path)
+		if not resource is CardData:
+			continue
+		var card_data: CardData = resource as CardData
+		result += (
+			card_data.card_name
+			+ "  "
+			+ str(card_data.up)
+			+ "/"
+			+ str(card_data.right)
+			+ "/"
+			+ str(card_data.down)
+			+ "/"
+			+ str(card_data.left)
+			+ "\n"
+		)
+	return result
+
+
+func get_enemy_card_paths() -> Array[String]:
+	var result: Array[String] = []
+	for card: GameCard in opponent_hand.get_children():
+		if card.data == null:
+			continue
+		if not card.data.resource_path.is_empty():
+			result.append(card.data.resource_path)
+	return result
+
+
+func get_tactical_compass_information() -> String:
+	if not RunManager.has_item("tactical_compass"):
+		return ""
+	var strongest: CardData = null
+	var strongest_total: int = -1
+	for card: GameCard in opponent_hand.get_children():
+		if card.data == null:
+			continue
+		var total: int = (card.data.up + card.data.right + card.data.down + card.data.left)
+		if total > strongest_total:
+			strongest_total = total
+			strongest = card.data
+	if strongest == null:
+		return ""
+	var result: String = "Tactical Compass:\n"
+	result += "Strongest Enemy Card: " + strongest.card_name + "\n"
+	result += "Values: "
+	result += str(strongest.up) + " / "
+	result += str(strongest.right) + " / "
+	result += str(strongest.down) + " / "
+	result += str(strongest.left)
+	return result
+
+
+func handle_bonus_cache_reward() -> void:
+	if not RunManager.has_item("bonus_cache"):
+		return
+	print("BONUS CACHE ACTIVATED")
+	get_tree().change_scene_to_file("res://GameManager/Map/rooms/BonusCache/BonusCacheRoom.tscn")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
