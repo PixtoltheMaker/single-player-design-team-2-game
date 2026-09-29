@@ -60,7 +60,6 @@ func update_button_states() -> void:
 			hard_button.text = "> LONG RUN <"
 
 
-
 func _on_easy_button_pressed() -> void:
 	select_easy()
 
