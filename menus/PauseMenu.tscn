@@ -58,8 +58,3 @@ text = "RETURN TO MAP"
 [node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=2098384731]
 layout_mode = 2
 text = "MAIN MENU"
-
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ResumeButton" to="." method="_on_resume_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/SettingsButton" to="." method="_on_settings_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ReturnToMapButton" to="." method="_on_return_to_map_pressed"]
-[connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/MainMenuButton" to="." method="_on_main_menu_pressed"]
