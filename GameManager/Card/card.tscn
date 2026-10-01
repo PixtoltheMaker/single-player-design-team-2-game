@@ -11,6 +11,7 @@ texture = ExtResource("3_yifny")
 
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
+custom_maximum_size = Vector2(160, 220)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -61,13 +62,26 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="RarityLabel" type="Label" parent="." unique_id=1194429992]
+z_index = 1
+layout_mode = 0
+offset_left = 46.0
+offset_top = -4.0
+offset_right = 116.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 16
+text = "N"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="UpValue" type="Label" parent="." unique_id=1294770993]
 z_index = 1
 layout_mode = 0
-offset_left = 77.0
-offset_top = 17.0
-offset_right = 103.0
-offset_bottom = 45.0
+offset_left = 67.0
+offset_top = 15.0
+offset_right = 93.0
+offset_bottom = 43.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "10"
@@ -76,10 +90,10 @@ vertical_alignment = 1
 
 [node name="LeftValue" type="Label" parent="." unique_id=1461346970]
 layout_mode = 0
-offset_left = 23.0
-offset_top = 106.0
-offset_right = 51.0
-offset_bottom = 134.0
+offset_left = 13.0
+offset_top = 96.0
+offset_right = 41.0
+offset_bottom = 124.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "8"
@@ -88,10 +102,10 @@ vertical_alignment = 1
 
 [node name="RightValue" type="Label" parent="." unique_id=158653125]
 layout_mode = 0
-offset_left = 130.0
-offset_top = 105.0
-offset_right = 158.0
-offset_bottom = 133.0
+offset_left = 119.0
+offset_top = 96.0
+offset_right = 147.0
+offset_bottom = 124.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "7"
@@ -100,10 +114,10 @@ vertical_alignment = 1
 
 [node name="DownValue" type="Label" parent="." unique_id=1919193165]
 layout_mode = 0
-offset_left = 78.0
-offset_top = 191.0
-offset_right = 103.0
-offset_bottom = 219.0
+offset_left = 68.0
+offset_top = 179.0
+offset_right = 93.0
+offset_bottom = 207.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "6"
@@ -112,10 +126,10 @@ vertical_alignment = 1
 
 [node name="NameLabel" type="Label" parent="." unique_id=1529218321]
 layout_mode = 0
-offset_left = 13.0
-offset_top = 205.0
-offset_right = 182.0
-offset_bottom = 233.0
+offset_left = 1.0
+offset_top = 155.0
+offset_right = 160.0
+offset_bottom = 183.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 17
 text = "RED DRAGON"

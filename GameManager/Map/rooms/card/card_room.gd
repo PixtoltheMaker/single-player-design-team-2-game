@@ -50,16 +50,73 @@ func _ready() -> void:
 func generate_card_choices() -> void:
 	offered_cards.clear()
 	offered_card_paths.clear()
-	var available_pool := card_pool.duplicate()
+	var available_pool: Array[String] = card_pool.duplicate()
 	available_pool.shuffle()
 	var amount: int = min(3, available_pool.size())
 	for i in range(amount):
 		var card_path: String = available_pool[i]
-		var card_data: CardData = load(card_path)
-		if card_data != null:
-			offered_cards.append(card_data)
-			offered_card_paths.append(card_path)
+		var original_card := load(card_path) as CardData
+		if original_card == null:
+			continue
+		var card_data := original_card.duplicate() as CardData
+		card_data.rarity = roll_rarity()
+		apply_rarity_bonus(card_data)
+		offered_cards.append(card_data)
+		offered_card_paths.append(card_path)
 	create_choice_buttons()
+
+
+func roll_rarity() -> CardData.Rarity:
+	var roll: float = randf()
+	if roll < 0.70:
+		return CardData.Rarity.NORMAL
+	if roll < 0.95:
+		return CardData.Rarity.RARE
+	return CardData.Rarity.MYTHIC
+
+
+func apply_rarity_bonus(card_data: CardData) -> void:
+	if card_data == null:
+		return
+	match card_data.rarity:
+		CardData.Rarity.NORMAL:
+			pass
+		CardData.Rarity.RARE:
+			card_data.up = mini(card_data.up + 1, 10)
+			card_data.right = mini(card_data.right + 1, 10)
+			card_data.down = mini(card_data.down + 1, 10)
+			card_data.left = mini(card_data.left + 1, 10)
+		CardData.Rarity.MYTHIC:
+			card_data.up = mini(card_data.up + 2, 10)
+			card_data.right = mini(card_data.right + 2, 10)
+			card_data.down = mini(card_data.down + 2, 10)
+			card_data.left = mini(card_data.left + 2, 10)
+			apply_random_mythic_ability(card_data)
+
+
+func apply_random_mythic_ability(card_data: CardData) -> void:
+	var abilities: Array[Dictionary] = [
+		{
+			"id": "Dragon_Fury",
+			"description": "Gain +2 attack when capturing an enemy card."
+		},
+		{
+			"id": "Blood_Hunt",
+			"description": "Gain +1 attack against powerful enemy cards."
+		},
+		{
+			"id": "Petrify",
+			"description": "The first card captured by this card cannot recapture."
+		},
+		{
+			"id": "Divine_Shield",
+			"description": "Survive the first capture against this card."
+		}
+	]
+	var ability: Dictionary = abilities.pick_random()
+	card_data.mythic_ability = ability["id"]
+	card_data.mythic_description = ability["description"]
+
 
 func create_choice_buttons() -> void:
 	for child in card_choices.get_children():
@@ -91,9 +148,8 @@ func _on_card_chosen(index: int) -> void:
 		return
 	var selected_path: String = offered_card_paths[index]
 	var selected_card: CardData = offered_cards[index]
-	print("Selected card: ", selected_card.card_name)
-	RunManager.player_cards.append(selected_path)
-	RunManager.unlock_card(selected_path)
+	print("Selected card: ", selected_card.card_name, " | Rarity: ", selected_card.rarity)
+	RunManager.add_card_variant(selected_path, selected_card.rarity, selected_card)
 	finish_card_room()
 
 

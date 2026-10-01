@@ -17,6 +17,8 @@ var current_room_id: int = -1
 var selected_room_id: int = -1
 var map_data: Array[Dictionary] = []
 
+var card_collection_variants: Array[Dictionary] = []
+
 var player_health: int = 5
 var player_max_health: int = 5
 var player_cards: Array[String] = []
@@ -190,12 +192,9 @@ func setup_starting_collection() -> void:
 
 func save_card_collection() -> void:
 	var config := ConfigFile.new()
-	config.set_value("collection", "unlocked_cards", card_collection)
-	config.set_value("deck", "selected_cards", saved_deck)
-	var error: Error = config.save(COLLECTION_SAVE_PATH)
-	if error != OK:
-		push_error("Failed to save card data. Error: " + str(error))
-		return
+	config.set_value("collection", "cards", card_collection)
+	config.set_value("collection", "card_variants", card_collection_variants)
+	config.save("user://collection.cfg")
 	print("Card collection and deck saved.")
 
 
@@ -214,6 +213,12 @@ func load_card_collection() -> void:
 			if card_path is String:
 				card_collection.append(String(card_path))
 	print("Loaded ", card_collection.size(), " unlocked cards.")
+	var saved_variants: Variant = config.get_value("collection", "card_variants", [])
+	card_collection_variants.clear()
+	if saved_variants is Array:
+		for entry: Variant in saved_variants:
+			if entry is Dictionary:
+				card_collection_variants.append(entry)
 	var saved_deck_data: Variant = config.get_value("deck", "selected_cards", [])
 	saved_deck.clear()
 	if saved_deck_data is Array:
@@ -386,7 +391,24 @@ func should_generate_bonus_reward() -> bool:
 	return false
 
 
-
+func add_card_variant(card_path: String, rarity: CardData.Rarity, card_data: CardData) -> void:
+	if card_path.is_empty():
+		return
+	# Make sure the collection array exists.
+	if not "card_collection_variants" in self:
+		push_error("card_collection_variants is missing from RunManager.")
+		return
+	var variant: Dictionary = {"rarity": int(rarity)}
+	# Prevent duplicate copies of the same card rarity.
+	for existing: Dictionary in card_collection_variants:
+		var existing_path: String = str(existing.get("path", ""))
+		var existing_rarity: int = int(existing.get("rarity", 0))
+		if existing_path == card_path and existing_rarity == int(rarity):
+			print("Already own: ", card_data.card_name, " - rarity ", rarity)
+			return
+	card_collection_variants.append(variant)
+	save_card_collection()
+	print("Added card variant: ", card_data.card_name, " | Rarity: ", rarity)
 
 
 

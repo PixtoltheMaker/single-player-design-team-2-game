@@ -15,6 +15,7 @@ var board_position: Vector2i = Vector2i(-1, -1)
 @onready var down_value: Label = $DownValue
 @onready var left_value: Label = $LeftValue
 @onready var name_label: Label = $NameLabel
+@onready var rarity_label: Label = $RarityLabel
 
 
 func _ready() -> void:
@@ -37,6 +38,8 @@ func update_card() -> void:
 	down_value.text = str(data.down)
 	left_value.text = str(data.left)
 	artwork.texture = data.artwork
+	rarity_label.text = get_rarity_symbol()
+	rarity_label.modulate = get_rarity_color()
 
 
 func set_card_owner(new_owner: int) -> void:
@@ -51,7 +54,30 @@ func update_owner_visual() -> void:
 		modulate = Color(1.0, 0.7, 0.7)
 
 
+func get_rarity_symbol() -> String:
+	if data == null:
+		return "◆"
+	match data.rarity:
+		CardData.Rarity.NORMAL:
+			return "◆"
+		CardData.Rarity.RARE:
+			return "◆◆"
+		CardData.Rarity.MYTHIC:
+			return "◆◆◆"
+	return "◆"
 
+
+func get_rarity_color() -> Color:
+	if data == null:
+		return Color.WHITE
+	match data.rarity:
+		CardData.Rarity.NORMAL:
+			return Color(0.8, 0.8, 0.8)
+		CardData.Rarity.RARE:
+			return Color(0.3, 0.6, 1.0)
+		CardData.Rarity.MYTHIC:
+			return Color(0.8, 0.3, 1.0)
+	return Color.WHITE
 
 
 

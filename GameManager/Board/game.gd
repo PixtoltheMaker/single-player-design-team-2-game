@@ -470,7 +470,6 @@ func medium_ai_move(available_cards: Array[GameCard], empty_slots: Array[BoardSl
 				best_slot = slot
 	if best_card != null and best_slot != null:
 		place_card(best_card, best_slot)
-
 	finish_turn()
 
 
@@ -717,10 +716,8 @@ func setup_combat_buffs() -> void:
 	print("Enemy combat bonus: ", enemy_combat_value_bonus)
 
 
-func get_card_attack_power(card: GameCard, direction: String) -> int:
-	if card == null:
-		return 0
-	if card.data == null:
+func get_card_attack_power(card: GameCard, direction: String, enemy_card: GameCard = null) -> int:
+	if card == null or card.data == null:
 		return 0
 	var power: int = 0
 	match direction:
@@ -740,9 +737,10 @@ func get_card_attack_power(card: GameCard, direction: String) -> int:
 			power += 2
 	if card.owner_id == PLAYER:
 		if RunManager.has_item("war_blade"):
-			var enemy_count: int = count_adjacent_enemies(card)
+			var enemy_count := count_adjacent_enemies(card)
 			if enemy_count >= 2:
 				power += 1
+	power += get_mythic_attack_bonus(card, enemy_card)
 	return power
 
 
@@ -924,9 +922,35 @@ func show_game_over(reason: String) -> void:
 			menu.show_game_over(reason)
 
 
+func is_mythic(card: GameCard) -> bool:
+	if card == null or card.data == null:
+		return false
+	return card.data.rarity == CardData.Rarity.MYTHIC
 
 
-
+func get_mythic_attack_bonus(card: GameCard, enemy_card: GameCard) -> int:
+	if not is_mythic(card):
+		return 0
+	match card.data.mythic_ability:
+		"Dragon_Fury":
+			return 2
+		"Blood_Hunt":
+			if enemy_card != null:
+				var enemy_power: int = maxi(
+					enemy_card.data.up,
+					maxi(
+						enemy_card.data.right,
+						maxi(
+							enemy_card.data.down,
+							enemy_card.data.left
+						)
+					)
+				)
+				if enemy_power >= 7:
+					return 1
+		_:
+			return 0
+	return 0
 
 
 

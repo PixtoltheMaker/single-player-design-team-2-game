@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_sorgt")
-card_name = "BlackDragon"
+card_name = "Black Dragon"
 up = 9
 right = 6
 down = 5
