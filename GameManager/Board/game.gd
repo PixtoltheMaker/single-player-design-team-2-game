@@ -555,11 +555,12 @@ func create_player_hand_from_run() -> void:
 		child.queue_free()
 	for card_path: String in RunManager.battle_hand:
 		if not ResourceLoader.exists(card_path):
+			push_error("Battle card does not exist: " + card_path)
 			continue
-		var resource: Resource = load(card_path)
-		if not resource is CardData:
+		var card_data: CardData = RunManager.get_card_variant(card_path)
+		if card_data == null:
+			push_error("Could not create card variant: " + card_path)
 			continue
-		var card_data: CardData = resource as CardData
 		var card: GameCard = CARD_SCENE.instantiate() as GameCard
 		if card == null:
 			continue
@@ -567,6 +568,7 @@ func create_player_hand_from_run() -> void:
 		card.set_card_owner(PLAYER)
 		player_hand.add_child(card)
 		card.card_clicked.connect(_on_card_clicked)
+		print("Battle card created: ", card_data.card_name, " | Rarity: ", card_data.rarity)
 
 
 func get_enemy_pool() -> Array[String]:
