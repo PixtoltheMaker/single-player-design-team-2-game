@@ -56,6 +56,7 @@ var board: Array = [
 @onready var health_bar: ProgressBar = $UI/HealthBar
 @onready var continue_button: Button = $UI/ContinueButton
 @onready var encounter_progress_label: Label = $UI/VBoxContainer/EncounterProgressLabel
+@onready var audio_manager: Node = get_node("/root/AudioManager")
 
 var current_player: int = PLAYER
 var selected_card: GameCard = null
@@ -68,6 +69,7 @@ var enemy_combat_value_bonus: int = 0
 
 func _ready() -> void:
 	RunManager.reset_combat_item_state()
+	audio_manager.play_battle_music()
 	for slot in board_container.get_children():
 		if slot is BoardSlot:
 			slot.slot_clicked.connect(_on_slot_clicked)
@@ -112,19 +114,24 @@ func _on_card_clicked(card: GameCard) -> void:
 		selected_card.position.y = 0
 	selected_card = card
 	selected_card.position.y = -20
+	AudioManager.play_sfx("card_select")
 	print("Selected: ", card.data.card_name)
 
 
 func place_card(card: GameCard, slot: BoardSlot) -> void:
-	var index := slot.slot_index
+	var index: int = slot.slot_index
 	board[index] = card
 	slot.card = card
 	card.board_position = Vector2i(index % 3, int(float(index) / 3.0))
 	card.reparent(slot)
 	card.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card.position = Vector2.ZERO
+	card.size = slot.size
+	card.custom_minimum_size = slot.size
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	check_captures(card)
 	update_score()
+	AudioManager.play_sfx("card_place")
 	print(card.data.card_name, " placed in slot ", index)
 	update_scores()
 
@@ -191,6 +198,7 @@ func capture_card(card: GameCard, new_owner: int) -> void:
 		if guardian_plate_protects(card):
 			return
 	card.set_card_owner(new_owner)
+	AudioManager.play_sfx("card_capture")
 	print(card.data.card_name, " was captured!")
 
 
@@ -201,10 +209,12 @@ func finish_turn() -> void:
 	if current_player == PLAYER:
 		current_player = COMPUTER
 		update_turn_label()
+		AudioManager.play_sfx("turn_change")
 		computer_turn()
 	else:
 		current_player = PLAYER
 		update_turn_label()
+		AudioManager.play_sfx("turn_change")
 
 
 func computer_turn() -> void:
@@ -365,16 +375,16 @@ func is_corner(board_position: Vector2i) -> bool:
 
 func evaluate_danger(card: GameCard, board_position: Vector2i) -> int:
 	var danger: int = 0
-	if position.y > 0:
+	if board_position.y > 0:
 		if get_card_at(board_position + Vector2i.UP) == null:
 			danger += get_side_threat(card.data.up, "down")
-	if position.x < 2:
+	if board_position.x < 2:
 		if get_card_at(board_position + Vector2i.RIGHT) == null:
 			danger += get_side_threat(card.data.right, "left")
-	if position.y < 2:
+	if board_position.y < 2:
 		if get_card_at(board_position + Vector2i.DOWN) == null:
 			danger += get_side_threat(card.data.down, "up")
-	if position.x > 0:
+	if board_position.x > 0:
 		if get_card_at(board_position + Vector2i.LEFT) == null:
 			danger += get_side_threat(card.data.left, "right")
 	return danger
@@ -614,10 +624,12 @@ func update_scores() -> void:
 func resolve_combat(player_score: int, computer_score: int) -> void:
 	game_over = true
 	if player_score > computer_score:
+		AudioManager.play_sfx("victory")
 		handle_combat_win()
 	elif computer_score > player_score:
 		handle_combat_loss(player_score, computer_score)
 	else:
+		AudioManager.play_sfx("draw")
 		handle_combat_draw()
 
 
@@ -667,6 +679,8 @@ func handle_combat_draw() -> void:
 
 func handle_run_defeat() -> void:
 	game_over = true
+	run_defeated = true
+	AudioManager.play_sfx("defeat")
 	if has_node("GameOver"):
 		var game_over_menu := $GameOver as Control
 		if game_over_menu.has_method("show_game_over"):

@@ -15,6 +15,7 @@ func _ready() -> void:
 
 
 func show_game_over(reason: String = "Your run has ended.") -> void:
+	AudioManager.pause_music()
 	get_tree().paused = true
 	reason_label.text = reason
 	var summary: String = "Run Complete"

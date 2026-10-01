@@ -5,6 +5,7 @@ extends Control
 @onready var skip_button: Button = $SkipButton
 
 const CARD_SCENE: PackedScene = preload("res://GameManager/Card/card.tscn")
+const CARD_SIZE := Vector2(160, 220)
 
 var card_pool: Array[String] = [
 	"res://GameManager/Card/Type/vermin/Birds.tres",
@@ -67,13 +68,17 @@ func create_choice_buttons() -> void:
 	for i in range(offered_cards.size()):
 		var card_data := offered_cards[i]
 		var container := VBoxContainer.new()
+		container.custom_minimum_size = Vector2(180, 260)
 		card_choices.add_child(container)
-		var card: GameCard = CARD_SCENE.instantiate()
+		var card := CARD_SCENE.instantiate() as GameCard
+		card.custom_minimum_size = CARD_SIZE
+		card.size = CARD_SIZE
 		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.data = card_data
 		container.add_child(card)
 		var choose_button := Button.new()
 		choose_button.text = "Choose"
+		choose_button.custom_minimum_size = Vector2(160, 40)
 		container.add_child(choose_button)
 		choose_button.pressed.connect(_on_card_chosen.bind(i))
 		choice_buttons.append(choose_button)

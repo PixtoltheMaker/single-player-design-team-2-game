@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_5gkui")
+card_name = "Human"
 up = 5
 right = 5
 down = 5

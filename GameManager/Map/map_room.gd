@@ -87,4 +87,5 @@ func _pressed() -> void:
 		return
 	if not data.available:
 		return
+	AudioManager.play_sfx("room_select")
 	room_selected.emit(self)

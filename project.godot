@@ -17,6 +17,9 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 RunManager="*uid://3yjmfqhkkb0c"
+AudioManager="*res://systems/audio_manager.gd"
+PauseManager="*res://systems/pause_manager.gd"
+SettingsManager="*uid://b7lbcy04c6o4s"
 
 [display]
 

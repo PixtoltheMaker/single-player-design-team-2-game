@@ -11,7 +11,6 @@ texture = ExtResource("3_yifny")
 
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
-custom_maximum_size = Vector2(180, 240)
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
