@@ -8,6 +8,14 @@ const DECK_SIZE: int = 5
 const BUFF_EXTRA_CARD_POWER: String = "extra_card_power"
 const BUFF_WEAKENING_CURSE: String = "weakening_curse"
 
+const STARTING_CARDS: Array[String] = [
+	"res://GameManager/Card/Type/dragons/RedDragon.tres",
+	"res://GameManager/Card/Type/humanoid/Elf(high).tres",
+	"res://GameManager/Card/Type/monstrosity/Manticore.tres",
+	"res://GameManager/Card/Type/outsider/Angel.tres",
+	"res://GameManager/Card/Type/plants/Trap.tres"
+]
+
 var run_active: bool = false
 
 var run_encounter_count: int = 12
@@ -17,15 +25,15 @@ var current_room_id: int = -1
 var selected_room_id: int = -1
 var map_data: Array[Dictionary] = []
 
-var card_collection_variants: Array[Dictionary] = []
-
 var player_health: int = 5
 var player_max_health: int = 5
 var player_cards: Array[String] = []
-var card_collection: Array[String] = []
 
+var card_collection: Array[String] = []
+var card_collection_variants: Array[Dictionary] = []
 var saved_deck: Array[String] = []
-var battle_hand: Array[String] = []
+var battle_hand: Array[Dictionary] = []
+
 
 var items: Array[String] = []
 var relics: Array[String] = []
@@ -44,11 +52,14 @@ var iron_sword_used: bool = false
 var twin_blades_used: bool = false
 var guardian_plate_used: bool = false
 var chainmail_used: bool = false
+var iron_armor_used: bool = false
 var lucky_charm_used: bool = false
 var guardian_relic_used: bool = false
 var phoenix_used_this_run: bool = false
 var first_capture_bonus: int = 0
 
+var run_ending: bool = false
+var run_won: bool = false
 
 func _ready() -> void:
 	load_card_collection()
@@ -58,11 +69,14 @@ func _ready() -> void:
 func start_new_run() -> void:
 	clear_encounter_progress()
 	run_active = true
+	run_ending = false
+	run_won = false
 	current_room_id = -1
 	selected_room_id = -1
 	map_data.clear()
 	player_health = player_max_health
 	player_cards.clear()
+	initialize_starting_cards()
 	items.clear()
 	setup_starting_deck()
 	battle_hand.clear()
@@ -203,6 +217,16 @@ func save_card_collection() -> void:
 
 
 func load_card_collection() -> void:
+	var starting_cards: Array[String] = [
+	"res://GameManager/Card/Type/dragons/RedDragon.tres",
+	"res://GameManager/Card/Type/humanoid/Elf(high).tres",
+	"res://GameManager/Card/Type/monstrosity/Manticore.tres",
+	"res://GameManager/Card/Type/outsider/Angel.tres",
+	"res://GameManager/Card/Type/plants/Trap.tres"
+]
+	for card_path: String in starting_cards:
+		if not card_collection.has(card_path):
+			card_collection.append(card_path)
 	var config := ConfigFile.new()
 	var error: Error = config.load(COLLECTION_SAVE_PATH)
 	if error != OK:
@@ -369,6 +393,7 @@ func reset_combat_item_state() -> void:
 	chainmail_used = false
 	lucky_charm_used = false
 	guardian_relic_used = false
+	iron_armor_used = false
 	first_capture_bonus = 0
 
 
@@ -401,10 +426,12 @@ func add_card_variant(card_path: String, rarity: CardData.Rarity, card_data: Car
 	if card_path.is_empty():
 		return
 	if not ResourceLoader.exists(card_path):
-		push_error("Cannot add missing card: " + card_path)
+		push_warning("Cannot add missing card: " + card_path)
 		return
 	if not card_collection.has(card_path):
 		card_collection.append(card_path)
+	if not player_cards.has(card_path):
+		player_cards.append(card_path)
 	var variant: Dictionary = {
 		"path": card_path,
 		"rarity": int(rarity),
@@ -419,26 +446,20 @@ func add_card_variant(card_path: String, rarity: CardData.Rarity, card_data: Car
 		var existing_path: String = str(existing.get("path", ""))
 		var existing_rarity: int = int(existing.get("rarity", 0))
 		if existing_path == card_path and existing_rarity == int(rarity):
-			print("Already own variant: ", card_data.card_name)
+			print("Already own: ", card_data.card_name)
 			return
 	card_collection_variants.append(variant)
-	if not player_cards.has(card_path):
-		player_cards.append(card_path)
 	save_card_collection()
 	print("Added card variant: ", card_data.card_name, " | Rarity: ", rarity)
 
 
 func get_card_variant(card_path: String) -> CardData:
-	# Find the saved variant.
 	for variant: Dictionary in card_collection_variants:
 		var variant_path: String = str(variant.get("path", ""))
 		if variant_path != card_path:
 			continue
 		var rarity: int = int(variant.get("rarity", 0))
-		var card_data: CardData = CardVariantGenerator.create_variant(
-			card_path,
-			rarity as CardData.Rarity
-		)
+		var card_data: CardData = CardVariantGenerator.create_variant(card_path, rarity as CardData.Rarity)
 		if card_data == null:
 			return null
 		card_data.up = int(variant.get("up", card_data.up))
@@ -451,15 +472,60 @@ func get_card_variant(card_path: String) -> CardData:
 	return load(card_path) as CardData
 
 
+func create_saved_card_variant(variant: Dictionary) -> CardData:
+	var card_path: String = str(variant.get("path", ""))
+	if card_path.is_empty():
+		return null
+	if not ResourceLoader.exists(card_path):
+		return null
+	var resource: Resource = load(card_path)
+	if not resource is CardData:
+		return null
+	var original: CardData = resource as CardData
+	var card_data: CardData = original.duplicate() as CardData
+	card_data.rarity = int(variant.get("rarity", CardData.Rarity.NORMAL)) as CardData.Rarity
+	card_data.up = int(variant.get("up", card_data.up))
+	card_data.right = int(variant.get("right", card_data.right))
+	card_data.down = int(variant.get("down", card_data.down))
+	card_data.left = int(variant.get("left", card_data.left))
+	card_data.mythic_ability = str(variant.get("mythic_ability", ""))
+	card_data.mythic_description = str(variant.get("mythic_description", ""))
+	return card_data
 
 
+func initialize_starting_cards() -> void:
+	for card_path: String in STARTING_CARDS:
+		add_starting_card(card_path)
+	save_card_collection()
 
 
+func add_starting_card(card_path: String) -> void:
+	if card_path.is_empty():
+		return
+	if not ResourceLoader.exists(card_path):
+		push_warning("Starting card does not exist: " + card_path)
+		return
+	var resource: Resource = load(card_path)
+	if not resource is CardData:
+		push_warning("Starting card is not CardData: " + card_path)
+		return
+	var card_data: CardData = resource as CardData
+	card_data = card_data.duplicate() as CardData
+	card_data.rarity = CardData.Rarity.NORMAL
+	card_data.mythic_ability = ""
+	card_data.mythic_description = ""
+	add_card_variant(card_path, CardData.Rarity.NORMAL, card_data)
 
 
-
-
-
+func set_battle_hand_variants(variants: Array[Dictionary]) -> void:
+	battle_hand.clear()
+	for variant: Dictionary in variants:
+		var card_path: String = str(variant.get("path", ""))
+		if card_path.is_empty():
+			continue
+		battle_hand.append(variant.duplicate())
+		if battle_hand.size() >= BATTLE_HAND_SIZE:
+			break
 
 
 

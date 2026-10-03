@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CardData" format=3 uid="uid://brak2ksrgiom1"]
 
 [ext_resource type="Script" uid="uid://b20o6xviyx7dm" path="res://GameManager/Card/CardData.gd" id="1_b1nn4"]
-[ext_resource type="Texture2D" uid="uid://c4a5t5qf1u833" path="res://GameManager/Card/Type/dragons/red dragon.png" id="1_sy7fb"]
+[ext_resource type="Texture2D" uid="uid://b83g4j7dji4qm" path="res://GameManager/Card/Type/dragons/art/red dragon.png" id="1_sy7fb"]
 
 [resource]
 script = ExtResource("1_b1nn4")

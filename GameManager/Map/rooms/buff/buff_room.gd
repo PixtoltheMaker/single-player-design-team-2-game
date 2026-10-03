@@ -96,7 +96,7 @@ func _on_buff_chosen(index: int) -> void:
 
 func finish_buff_room() -> void:
 	RunManager.complete_selected_room()
-	get_tree().change_scene_to_file("res://GameManager/map/RunMap.tscn")
+	get_tree().change_scene_to_file("res://GameManager/Map/RunMap.tscn")
 
 
 func _on_skip_button_pressed() -> void:

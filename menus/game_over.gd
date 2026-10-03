@@ -1,36 +1,43 @@
 extends Control
 
-
-@onready var reason_label: Label = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ReasonLabel
-@onready var run_summary_label: Label = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RunSummaryLabel
-@onready var retry_button: Button = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/RetryButton
-@onready var main_menu_button: Button = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/MainMenuButton
+@onready var title_label: Label = $CenterContainer/PanelContainer/VBoxContainer/TitleLabel
+@onready var message_label: Label = $CenterContainer/PanelContainer/VBoxContainer/MessageLabel
+@onready var reset_button: Button = $CenterContainer/PanelContainer/VBoxContainer/ResetButton
+@onready var continue_button: Button = $CenterContainer/PanelContainer/VBoxContainer/MainMenuButton
 
 
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
-	retry_button.pressed.connect(_on_retry_pressed)
-	main_menu_button.pressed.connect(_on_main_menu_pressed)
-	hide()
+	reset_button.pressed.connect(_on_reset_pressed)
+	continue_button.pressed.connect(_on_continue_pressed)
+	if RunManager.run_won:
+		setup_victory()
+	else:
+		setup_game_over()
 
 
-func show_game_over(reason: String = "Your run has ended.") -> void:
-	AudioManager.pause_music()
-	get_tree().paused = true
-	reason_label.text = reason
-	var summary: String = "Run Complete"
-	if RunManager.player_health <= 0:
-		summary = "You ran out of health."
-	run_summary_label.text = summary
-	show()
+func setup_game_over() -> void:
+	title_label.text = "GAME OVER"
+	message_label.text = "Your run has ended."
+	reset_button.text = "Reset Run"
+	reset_button.show()
+	continue_button.text = "Return to Main Menu"
 
 
-func _on_retry_pressed() -> void:
-	get_tree().paused = false
+func setup_victory() -> void:
+	title_label.text = "VICTORY!"
+	message_label.text = "You defeated the final boss!\nThe kingdom is saved!"
+	reset_button.hide()
+	continue_button.text = "Return to Main Menu"
+
+
+func _on_reset_pressed() -> void:
 	RunManager.start_new_run()
+	RunManager.run_ending = false
+	RunManager.run_won = false
 	get_tree().change_scene_to_file("res://GameManager/Map/RunMap.tscn")
 
 
-func _on_main_menu_pressed() -> void:
-	get_tree().paused = false
+func _on_continue_pressed() -> void:
+	RunManager.run_ending = false
+	RunManager.run_won = false
 	get_tree().change_scene_to_file("res://menus/MainMenu.tscn")

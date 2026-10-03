@@ -119,26 +119,22 @@ func apply_random_mythic_ability(card_data: CardData) -> void:
 
 
 func create_choice_buttons() -> void:
-	for child in card_choices.get_children():
-		child.queue_free()
-	choice_buttons.clear()
 	for i in range(offered_cards.size()):
-		var card_data := offered_cards[i]
-		var container := VBoxContainer.new()
-		container.custom_minimum_size = Vector2(180, 260)
-		card_choices.add_child(container)
-		var card := CARD_SCENE.instantiate() as GameCard
-		card.custom_minimum_size = CARD_SIZE
-		card.size = CARD_SIZE
-		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.data = card_data
-		container.add_child(card)
-		var choose_button := Button.new()
+		var card_data: CardData = offered_cards[i]
+		var choice_container: VBoxContainer = VBoxContainer.new()
+		choice_container.custom_minimum_size = Vector2(220, 380)
+		card_choices.add_child(choice_container)
+		var card_instance: GameCard = CARD_SCENE.instantiate() as GameCard
+		if card_instance == null:
+			continue
+		card_instance.custom_minimum_size = Vector2(220, 300)
+		choice_container.add_child(card_instance)
+		card_instance.set_card_data(card_data)
+		var choose_button: Button = Button.new()
 		choose_button.text = "Choose"
-		choose_button.custom_minimum_size = Vector2(160, 40)
-		container.add_child(choose_button)
+		choose_button.custom_minimum_size = Vector2(220, 50)
 		choose_button.pressed.connect(_on_card_chosen.bind(i))
-		choice_buttons.append(choose_button)
+		choice_container.add_child(choose_button)
 
 
 func _on_card_chosen(index: int) -> void:

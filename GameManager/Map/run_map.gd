@@ -1,5 +1,8 @@
 extends Control
 
+const RUN_INVENTORY = preload("uid://bqe5tibyclgvm")
+const INVENTORY_SCENE: PackedScene = preload("res://menus/run_inventory.tscn")
+
 @export var room_scene: PackedScene
 
 const ROWS: int = 3
@@ -12,8 +15,9 @@ var encounter_columns_per_act: Array[int] = []
 @onready var map_panel: Panel = $MapScroll/MapPanel
 @onready var connection_lines: MapConnections = $MapScroll/MapPanel/ConnectionLines
 @onready var rooms_container: Control = $MapScroll/MapPanel/Rooms
-@onready var health_label: Label = $RunHUD/HBoxContainer/HealthLabel
-@onready var health_bar: ProgressBar = $RunHUD/HBoxContainer/HealthBar
+@onready var health_label: Label = $RunHUD/VBoxContainer/HBoxContainer/HealthLabel
+@onready var health_bar: ProgressBar = $RunHUD/VBoxContainer/HBoxContainer/HealthBar
+
 @onready var map_scroll: ScrollContainer = $MapScroll
 
 var room_nodes: Dictionary = {}
@@ -413,7 +417,9 @@ func scroll_to_available_column() -> void:
 	map_scroll.scroll_horizontal = int(target_x)
 
 
-
+func _on_inventory_button_pressed() -> void:
+	var inventory = INVENTORY_SCENE.instantiate()
+	add_child(inventory)
 
 
 

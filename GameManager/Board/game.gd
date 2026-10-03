@@ -3,6 +3,9 @@ extends Control
 const PLAYER := 0
 const COMPUTER := 1
 const CARD_SCENE: PackedScene = preload("res://GameManager/Card/card.tscn")
+const RUN_INVENTORY = preload("uid://bqe5tibyclgvm")
+const INVENTORY_SCENE: PackedScene = preload("res://menus/run_inventory.tscn")
+
 
 enum AIDifficulty {
 	NORMAL,
@@ -47,16 +50,22 @@ var board: Array = [
 @onready var board_container: GridContainer = $CenterContainer/Board
 @onready var player_hand: VBoxContainer = $PlayerHand
 @onready var opponent_hand: VBoxContainer = $OpponentHand
+@onready var combat_type_label: Label = $UI/VBoxContainer/HBoxContainer/CombatTypeLabel
+@onready var health_label: Label = $UI/VBoxContainer/HBoxContainer/health/HealthLabel
+@onready var health_bar: ProgressBar = $UI/VBoxContainer/HBoxContainer/health/HealthBar
+@onready var inventory_button: Button = $UI/VBoxContainer/HBoxContainer/InventoryButton
 @onready var turn_label: Label = $UI/VBoxContainer/TurnLabel
+@onready var encounter_progress_label: Label = $UI/VBoxContainer/EncounterProgressLabel
 @onready var player_score_label: Label = $UI/VBoxContainer/PlayerScore
 @onready var enemy_score_label: Label = $UI/VBoxContainer/EnemyScore
 @onready var result_label: Label = $UI/VBoxContainer/ResultLabel
-@onready var combat_type_label: Label = $UI/CombatTypeLabel
-@onready var health_label: Label = $UI/HealthLabel
-@onready var health_bar: ProgressBar = $UI/HealthBar
 @onready var continue_button: Button = $UI/ContinueButton
-@onready var encounter_progress_label: Label = $UI/VBoxContainer/EncounterProgressLabel
 @onready var audio_manager: Node = get_node("/root/AudioManager")
+@onready var coin_flip_panel: Panel = $CoinFlipPanel
+@onready var coin_label: Label = $CoinFlipPanel/VBoxContainer/CoinLabel
+@onready var coin_result_label: Label = $CoinFlipPanel/VBoxContainer/ResultLabel
+@onready var flip_button: Button = $CoinFlipPanel/VBoxContainer/FlipButton
+
 
 var current_player: int = PLAYER
 var selected_card: GameCard = null
@@ -66,28 +75,29 @@ var run_defeated: bool = false
 var combat_buff_value_bonus: int = 0
 var enemy_combat_value_bonus: int = 0
 
+var player_goes_first: bool = false
+var coin_flip_finished: bool = false
+
 
 func _ready() -> void:
+	print("=== BATTLE SCENE ENTERED ===")
+	print("run_defeated = ", run_defeated)
+	print("run_active = ", RunManager.run_active)
+	print("run_ending = ", RunManager.run_ending)
+	print("run_won = ", RunManager.run_won)
 	RunManager.reset_combat_item_state()
 	audio_manager.play_battle_music()
 	for slot in board_container.get_children():
 		if slot is BoardSlot:
 			slot.slot_clicked.connect(_on_slot_clicked)
-	for card in player_hand.get_children():
-		if card is GameCard:
-			card.set_card_owner(PLAYER)
-			card.card_clicked.connect(_on_card_clicked)
-	for card in opponent_hand.get_children():
-		if card is GameCard:
-			card.set_card_owner(COMPUTER)
-	setup_combat_buffs()
-	update_turn_label()
-	update_score()
 	setup_roguelite_combat()
+	start_coin_flip()
 
 
 func _on_slot_clicked(slot: BoardSlot) -> void:
 	if game_over:
+		return
+	if not coin_flip_finished:
 		return
 	if current_player != PLAYER:
 		return
@@ -97,14 +107,17 @@ func _on_slot_clicked(slot: BoardSlot) -> void:
 	if slot.card != null:
 		print("That space is occupied.")
 		return
-	var card := selected_card
+	var card: GameCard = selected_card
 	selected_card = null
+	card.position.y = 0
 	place_card(card, slot)
 	finish_turn()
 
 
 func _on_card_clicked(card: GameCard) -> void:
 	if game_over:
+		return
+	if not coin_flip_finished:
 		return
 	if current_player != PLAYER:
 		return
@@ -154,25 +167,31 @@ func check_captures(card: GameCard) -> void:
 
 
 func check_direction(card: GameCard, target_position: Vector2i, direction: String) -> void:
-	var enemy := get_card_at(target_position)
+	var enemy: GameCard = get_card_at(target_position)
 	if enemy == null:
 		return
 	if enemy.owner_id == card.owner_id:
 		return
-	var attack_value: int = get_card_attack_power(card, direction)
+	var attack_value: int = get_card_attack_power(card, direction, enemy)
 	var defense_value: int = get_card_defense_power(enemy, get_opposite_direction(direction))
 	print(card.data.card_name, " attacks ", enemy.data.card_name, " | ", attack_value, " vs ", defense_value)
 	var can_capture: bool = false
-	if not can_capture:
-		if card.owner_id == PLAYER:
-			if RunManager.has_item("twin_blades"):
-				if not RunManager.twin_blades_used:
-					RunManager.twin_blades_used = true
-					print("Twin Blades activated!")
-					var second_attack: int = attack_value + 1
-					if second_attack > defense_value:
-						capture_card(enemy, card.owner_id)
-					return
+	if card.owner_id == PLAYER and RunManager.has_relic("ancient_sword"):
+		can_capture = attack_value >= defense_value
+	else:
+		can_capture = attack_value > defense_value
+	if can_capture:
+		capture_card(enemy, card.owner_id)
+		return
+	if card.owner_id == PLAYER:
+		if RunManager.has_item("twin_blades"):
+			if not RunManager.twin_blades_used:
+				RunManager.twin_blades_used = true
+				print("Twin Blades activated!")
+				var second_attack: int = attack_value + 1
+				if second_attack > defense_value:
+					capture_card(enemy, card.owner_id)
+				return
 	if card.owner_id == COMPUTER:
 		if enemy.owner_id == PLAYER:
 			if RunManager.has_item("lucky_charm"):
@@ -180,13 +199,6 @@ func check_direction(card: GameCard, target_position: Vector2i, direction: Strin
 					if attack_value == defense_value + 1:
 						RunManager.lucky_charm_used = true
 						print("Lucky Charm prevented a capture!")
-						return
-	if card.owner_id == PLAYER and RunManager.has_relic("ancient_sword"):
-		can_capture = attack_value >= defense_value
-	else:
-		can_capture = attack_value > defense_value
-	if can_capture:
-		capture_card(enemy, card.owner_id)
 
 
 func capture_card(card: GameCard, new_owner: int) -> void:
@@ -309,9 +321,6 @@ func end_game() -> void:
 
 
 func _on_continue_button_pressed() -> void:
-	if run_defeated:
-		get_tree().change_scene_to_file("res://menus/GameOver.tscn")
-		return
 	var encounter_complete: bool = (RunManager.encounter_room_id == -1)
 	if encounter_complete:
 		get_tree().change_scene_to_file("res://GameManager/Map/RunMap.tscn")
@@ -521,6 +530,7 @@ func setup_enemy() -> void:
 
 func setup_roguelite_combat() -> void:
 	continue_button.hide()
+	setup_combat_buffs()
 	setup_combat_type()
 	update_health_display()
 	create_player_hand_from_run()
@@ -553,22 +563,39 @@ func setup_combat_type() -> void:
 func create_player_hand_from_run() -> void:
 	for child: Node in player_hand.get_children():
 		child.queue_free()
-	for card_path: String in RunManager.battle_hand:
+	for variant: Dictionary in RunManager.battle_hand:
+		var card_path: String = str(variant.get("path", ""))
+		if card_path.is_empty():
+			continue
 		if not ResourceLoader.exists(card_path):
 			push_error("Battle card does not exist: " + card_path)
 			continue
-		var card_data: CardData = RunManager.get_card_variant(card_path)
+		var card_data: CardData = RunManager.create_saved_card_variant(variant)
 		if card_data == null:
 			push_error("Could not create card variant: " + card_path)
 			continue
 		var card: GameCard = CARD_SCENE.instantiate() as GameCard
 		if card == null:
 			continue
-		card.data = card_data
-		card.set_card_owner(PLAYER)
 		player_hand.add_child(card)
+		card.data = card_data
+		card.update_card()
+		card.set_card_owner(PLAYER)
 		card.card_clicked.connect(_on_card_clicked)
-		print("Battle card created: ", card_data.card_name, " | Rarity: ", card_data.rarity)
+		print(
+			"Battle card created: ",
+			card_data.card_name,
+			" | Rarity: ",
+			card_data.rarity,
+			" | Stats: ",
+			card_data.up,
+			"/",
+			card_data.right,
+			"/",
+			card_data.down,
+			"/",
+			card_data.left
+		)
 
 
 func get_enemy_pool() -> Array[String]:
@@ -594,9 +621,12 @@ func create_enemy_hand() -> void:
 		if resource is CardData:
 			var card_data: CardData = resource as CardData
 			var card: GameCard = CARD_SCENE.instantiate() as GameCard
-			card.data = card_data
-			card.set_card_owner(COMPUTER)
+			if card == null:
+				continue
 			opponent_hand.add_child(card)
+			card.data = card_data
+			card.update_card()
+			card.set_card_owner(COMPUTER)
 
 
 func update_scores() -> void:
@@ -654,6 +684,12 @@ func handle_combat_win() -> void:
 
 func handle_combat_loss(_player_score: int, _computer_score: int) -> void:
 	RunManager.consume_combat_buffs()
+	if RunManager.has_item("iron_armor"):
+		if not RunManager.iron_armor_used:
+			RunManager.iron_armor_used = true
+			result_label.text = "Iron Armor prevented the HP loss!"
+			print("Iron Armor activated!")
+			return
 	RunManager.player_health -= 1
 	RunManager.player_health = maxi(RunManager.player_health, 0)
 	update_health_display()
@@ -679,13 +715,18 @@ func handle_combat_draw() -> void:
 
 
 func handle_run_defeat() -> void:
+	if RunManager.has_relic("phoenix_relic"):
+		if not RunManager.phoenix_used_this_run:
+			RunManager.phoenix_used_this_run = true
+			RunManager.player_health = 2
+			result_label.text = "Phoenix Relic saved you!"
+			print("Phoenix Relic activated!")
+			update_health_display()
+			return
 	game_over = true
 	run_defeated = true
 	AudioManager.play_sfx("defeat")
-	if has_node("GameOver"):
-		var game_over_menu := $GameOver as Control
-		if game_over_menu.has_method("show_game_over"):
-			game_over_menu.show_game_over("You ran out of health.")
+	get_tree().change_scene_to_file("res://menus/GameOver.tscn")
 
 
 func update_encounter_progress() -> void:
@@ -701,6 +742,18 @@ func handle_encounter_complete() -> void:
 		_:
 			result_label.text = "Victory!"
 	RunManager.complete_selected_room()
+	if RunManager.is_run_complete():
+		result_label.text = "FINAL BOSS DEFEATED!\nYOU WIN!"
+		RunManager.run_active = false
+		RunManager.clear_battle_hand()
+		RunManager.clear_encounter_progress()
+		continue_button.text = "Game Complete"
+		continue_button.show()
+		if continue_button.pressed.is_connected(_on_continue_button_pressed):
+			continue_button.pressed.disconnect(_on_continue_button_pressed)
+		if not continue_button.pressed.is_connected(_on_final_boss_complete):
+			continue_button.pressed.connect(_on_final_boss_complete)
+		return
 	RunManager.clear_encounter_progress()
 	RunManager.clear_battle_hand()
 	continue_button.text = "Return to Map"
@@ -714,8 +767,11 @@ func setup_combat_buffs() -> void:
 		combat_buff_value_bonus = 1
 	if RunManager.has_combat_buff("weakening_curse"):
 		enemy_combat_value_bonus = -1
-	print("Player combat bonus: ", combat_buff_value_bonus)
-	print("Enemy combat bonus: ", enemy_combat_value_bonus)
+	print("===== COMBAT BUFF TEST =====")
+	print("Active buffs: ", RunManager.active_combat_buffs)
+	print("Player power bonus: ", combat_buff_value_bonus)
+	print("Enemy power bonus: ", enemy_combat_value_bonus)
+	print("============================")
 
 
 func get_card_attack_power(card: GameCard, direction: String, enemy_card: GameCard = null) -> int:
@@ -732,17 +788,19 @@ func get_card_attack_power(card: GameCard, direction: String, enemy_card: GameCa
 		"left":
 			power = card.data.left
 	if card.owner_id == PLAYER:
+		power += combat_buff_value_bonus
 		if RunManager.has_item("iron_sword"):
 			power += 1
-	if card.owner_id == PLAYER:
 		if RunManager.has_relic("ancient_sword"):
 			power += 2
-	if card.owner_id == PLAYER:
 		if RunManager.has_item("war_blade"):
-			var enemy_count := count_adjacent_enemies(card)
+			var enemy_count: int = count_adjacent_enemies(card)
 			if enemy_count >= 2:
 				power += 1
+	if card.owner_id == COMPUTER:
+		power += enemy_combat_value_bonus
 	power += get_mythic_attack_bonus(card, enemy_card)
+	power = maxi(power, 1)
 	return power
 
 
@@ -783,9 +841,7 @@ func get_card_defense_power(card: GameCard, direction: String) -> int:
 			defense = card.data.left
 	if card.owner_id == PLAYER:
 		if RunManager.has_item("chainmail"):
-			if not RunManager.chainmail_used:
-				defense += 1
-	if card.owner_id == PLAYER:
+			defense += 1
 		if RunManager.has_relic("guardian_relic"):
 			defense += 2
 	return defense
@@ -916,14 +972,6 @@ func handle_bonus_cache_reward() -> void:
 	get_tree().change_scene_to_file("res://GameManager/Map/rooms/BonusCache/BonusCacheRoom.tscn")
 
 
-func show_game_over(reason: String) -> void:
-	game_over = true
-	if has_node("GameOver"):
-		var menu := $GameOver
-		if menu.has_method("show_game_over"):
-			menu.show_game_over(reason)
-
-
 func is_mythic(card: GameCard) -> bool:
 	if card == null or card.data == null:
 		return false
@@ -955,19 +1003,63 @@ func get_mythic_attack_bonus(card: GameCard, enemy_card: GameCard) -> int:
 	return 0
 
 
+func _on_inventory_button_pressed() -> void:
+	var inventory = INVENTORY_SCENE.instantiate()
+	add_child(inventory)
 
 
+func start_coin_flip() -> void:
+	coin_flip_finished = false
+	coin_flip_panel.visible = true
+	coin_label.text = "🪙"
+	coin_result_label.text = "WHO GOES FIRST?"
+	flip_button.visible = true
+	flip_button.disabled = false
 
 
+func _on_flip_button_pressed() -> void:
+	if coin_flip_finished:
+		return
+	flip_button.disabled = true
+	coin_result_label.text = "FLIPPING..."
+	await get_tree().create_timer(0.5).timeout
+	var result: int = randi_range(0, 1)
+	if result == 0:
+		player_goes_first = true
+		coin_label.text = "HEADS"
+		coin_result_label.text = "PLAYER GOES FIRST!"
+	else:
+		player_goes_first = false
+		coin_label.text = "TAILS"
+		coin_result_label.text = "COMPUTER GOES FIRST!"
+	await get_tree().create_timer(1.0).timeout
+	finish_coin_flip()
 
 
+func finish_coin_flip() -> void:
+	if coin_flip_finished:
+		return
+	coin_flip_finished = true
+	coin_flip_panel.visible = false
+	print("Coin flip finished.")
+	print("Player goes first: ", player_goes_first)
+	start_first_turn_after_coin_flip()
 
 
+func start_first_turn_after_coin_flip() -> void:
+	if player_goes_first:
+		current_player = PLAYER
+		update_turn_label()
+		print("PLAYER'S TURN")
+	else:
+		current_player = COMPUTER
+		update_turn_label()
+		print("COMPUTER'S TURN")
+		computer_turn()
 
 
-
-
-
+func _on_final_boss_complete() -> void:
+	get_tree().change_scene_to_file("res://menus/GameOver.tscn")
 
 
 

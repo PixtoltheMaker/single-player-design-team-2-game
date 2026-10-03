@@ -88,6 +88,7 @@ layout_mode = 2
 text = "name"
 
 [node name="SelectedArtwork" type="TextureRect" parent="CardDetailsPanel/VBoxContainer" unique_id=327713064]
+custom_maximum_size = Vector2(160, 220)
 layout_mode = 2
 
 [node name="ValuesLabel" type="Label" parent="CardDetailsPanel/VBoxContainer" unique_id=2047497410]
