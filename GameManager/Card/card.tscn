@@ -9,6 +9,8 @@
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nl4ll"]
 texture = ExtResource("3_yifny")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
 custom_maximum_size = Vector2(160, 220)
@@ -69,7 +71,6 @@ offset_left = 46.0
 offset_top = -4.0
 offset_right = 116.0
 offset_bottom = 24.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "N"
 horizontal_alignment = 1
@@ -135,3 +136,26 @@ theme_override_font_sizes/font_size = 17
 text = "RED DRAGON"
 horizontal_alignment = 1
 vertical_alignment = 2
+
+[node name="CardBack" type="Panel" parent="." unique_id=263687902]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
+
+[node name="QuestionLabel" type="Label" parent="CardBack" unique_id=1135817296]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 60
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -17,7 +17,12 @@ var board_position: Vector2i = Vector2i(-1, -1)
 @onready var down_value: Label = $DownValue
 @onready var left_value: Label = $LeftValue
 @onready var name_label: Label = $NameLabel
+@onready var card_back: Panel = $CardBack
+@onready var question_label: Label = $CardBack/QuestionLabel
 
+var petrified: bool = false
+var petrify_used: bool = false
+var divine_shield_used: bool = false
 
 
 func _ready() -> void:
@@ -72,6 +77,8 @@ func set_card_owner(new_owner: int) -> void:
 
 
 func update_owner_visual() -> void:
+	if card_background == null:
+		return
 	if owner_id == 0:
 		card_background.modulate = Color(0.75, 0.85, 1.0)
 	else:
@@ -82,3 +89,55 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			card_clicked.emit(self)
+
+
+func set_card_hidden(hidden: bool) -> void:
+	if card_back == null:
+		return
+	card_back.visible = hidden
+	if artwork != null:
+		artwork.visible = not hidden
+	if rarity_label != null:
+		rarity_label.visible = not hidden
+	if up_value != null:
+		up_value.visible = not hidden
+	if right_value != null:
+		right_value.visible = not hidden
+	if down_value != null:
+		down_value.visible = not hidden
+	if left_value != null:
+		left_value.visible = not hidden
+	if name_label != null:
+		name_label.visible = not hidden
+
+
+func reveal_card() -> void:
+	if card_back != null:
+		card_back.visible = false
+	if artwork != null:
+		artwork.visible = true
+	if rarity_label != null:
+		rarity_label.visible = true
+	if up_value != null:
+		up_value.visible = true
+	if right_value != null:
+		right_value.visible = true
+	if down_value != null:
+		down_value.visible = true
+	if left_value != null:
+		left_value.visible = true
+	if name_label != null:
+		name_label.visible = true
+	visible = true
+
+
+func has_mythic_ability(ability_id: String) -> bool:
+	if data == null:
+		return false
+	return data.rarity == CardData.Rarity.MYTHIC and data.mythic_ability == ability_id
+
+
+func reset_combat_abilities() -> void:
+	petrified = false
+	petrify_used = false
+	divine_shield_used = false

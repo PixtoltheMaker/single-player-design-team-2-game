@@ -5,7 +5,8 @@ signal slot_clicked(slot: BoardSlot)
 
 @export var slot_index: int = 0
 
-var card = null
+var card: GameCard = null
+var occupied: bool = false
 
 
 func _ready() -> void:
@@ -22,6 +23,7 @@ func set_card(new_card: GameCard) -> void:
 	card = new_card
 	if card == null:
 		return
+		occupied = true
 	card.position = Vector2.ZERO
 	card.size = size
 	card.custom_minimum_size = size

@@ -7,6 +7,9 @@ const DECK_SIZE: int = 5
 
 const BUFF_EXTRA_CARD_POWER: String = "extra_card_power"
 const BUFF_WEAKENING_CURSE: String = "weakening_curse"
+const BUFF_FIRST_STRIKE: String = "first_strike"
+const BUFF_LAST_STAND: String = "last_stand"
+const BUFF_TACTICAL_INSIGHT: String = "tactical_insight"
 
 const STARTING_CARDS: Array[String] = [
 	"res://GameManager/Card/Type/dragons/RedDragon.tres",
@@ -15,6 +18,10 @@ const STARTING_CARDS: Array[String] = [
 	"res://GameManager/Card/Type/outsider/Angel.tres",
 	"res://GameManager/Card/Type/plants/Trap.tres"
 ]
+
+var boss_special_ability: String = ""
+var boss_vengeance_active: bool = false
+var boss_dark_pact_used: bool = false
 
 var run_active: bool = false
 
@@ -33,7 +40,7 @@ var card_collection: Array[String] = []
 var card_collection_variants: Array[Dictionary] = []
 var saved_deck: Array[String] = []
 var battle_hand: Array[Dictionary] = []
-
+var encounter_coin_flip_done: bool = false
 
 var items: Array[String] = []
 var relics: Array[String] = []
@@ -56,10 +63,13 @@ var iron_armor_used: bool = false
 var lucky_charm_used: bool = false
 var guardian_relic_used: bool = false
 var phoenix_used_this_run: bool = false
-var first_capture_bonus: int = 0
+
+var first_strike_used: bool = false
+var first_strike_active: bool = false
 
 var run_ending: bool = false
 var run_won: bool = false
+
 
 func _ready() -> void:
 	load_card_collection()
@@ -394,7 +404,8 @@ func reset_combat_item_state() -> void:
 	lucky_charm_used = false
 	guardian_relic_used = false
 	iron_armor_used = false
-	first_capture_bonus = 0
+	first_strike_used = false
+	first_strike_active = false
 
 
 func give_room_reward(base_reward: int) -> void:
@@ -528,7 +539,19 @@ func set_battle_hand_variants(variants: Array[Dictionary]) -> void:
 			break
 
 
-
+func choose_boss_special_ability() -> void:
+	var abilities: Array[String] = [
+		"brutal_might",
+		"fortified_cards",
+		"blood_rush",
+		"vengeance",
+		"first_strike",
+		"dark_pact"
+	]
+	boss_special_ability = abilities.pick_random()
+	boss_vengeance_active = false
+	boss_dark_pact_used = false
+	print("BOSS ABILITY: ", boss_special_ability)
 
 
 
