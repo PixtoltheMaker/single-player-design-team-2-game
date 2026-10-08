@@ -27,8 +27,8 @@ SettingsManager="*uid://b7lbcy04c6o4s"
 
 [display]
 
-window/size/viewport_width=1680
-window/size/viewport_height=1050
+window/size/viewport_width=1280
+window/size/viewport_height=960
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

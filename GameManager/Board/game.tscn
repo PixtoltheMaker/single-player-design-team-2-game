@@ -41,9 +41,9 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.017
 anchor_bottom = 0.031000001
-offset_left = 1473.0
+offset_left = 950.0
 offset_top = 6.0
-offset_right = 1613.416
+offset_right = 1090.416
 offset_bottom = 1101.912
 
 [node name="card1" parent="OpponentHand" unique_id=953183884 instance=ExtResource("3_ry4gh")]

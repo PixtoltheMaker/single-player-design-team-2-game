@@ -38,7 +38,7 @@ var player_cards: Array[String] = []
 
 var card_collection: Array[String] = []
 var card_collection_variants: Array[Dictionary] = []
-var saved_deck: Array[String] = []
+var saved_deck: Array[Dictionary] = []
 var battle_hand: Array[Dictionary] = []
 var encounter_coin_flip_done: bool = false
 
@@ -95,8 +95,10 @@ func start_new_run() -> void:
 
 func setup_starting_deck() -> void:
 	player_cards.clear()
-	for card_path: String in saved_deck:
-		player_cards.append(card_path)
+	for variant: Dictionary in saved_deck:
+		var card_path: String = str(variant.get("path", ""))
+		if not card_path.is_empty() and ResourceLoader.exists(card_path):
+			player_cards.append(card_path)
 
 
 func end_run() -> void:
@@ -207,11 +209,12 @@ func is_card_unlocked(card_path: String) -> bool:
 func setup_starting_collection() -> void:
 	if not card_collection.is_empty():
 		return
-	unlock_card("res://GameManager/Card/Type/dragons/RedDragon.tres")
-	unlock_card("res://GameManager/Card/Type/humanoid/Elf(high).tres")
-	unlock_card("res://GameManager/Card/Type/monstrosity/Manticore.tres")
-	unlock_card("res://GameManager/Card/Type/outsider/Angel.tres")
-	unlock_card("res://GameManager/Card/Type/plants/Trap.tres")
+
+	add_starting_card("res://GameManager/Card/Type/dragons/RedDragon.tres")
+	add_starting_card("res://GameManager/Card/Type/humanoid/Elf(high).tres")
+	add_starting_card("res://GameManager/Card/Type/monstrosity/Manticore.tres")
+	add_starting_card("res://GameManager/Card/Type/outsider/Angel.tres")
+	add_starting_card("res://GameManager/Card/Type/plants/Trap.tres")
 
 
 func save_card_collection() -> void:
@@ -261,12 +264,32 @@ func load_card_collection() -> void:
 				card_collection_variants.append(entry)
 	var saved_deck_data: Variant = config.get_value("deck", "selected_cards", [])
 	saved_deck.clear()
+
 	if saved_deck_data is Array:
-		for card_path: Variant in saved_deck_data:
-			if card_path is String:
-				var path: String = String(card_path)
+		for entry: Variant in saved_deck_data:
+			if entry is Dictionary:
+				var variant: Dictionary = entry.duplicate(true)
+				var path: String = str(variant.get("path", ""))
 				if card_collection.has(path) and ResourceLoader.exists(path):
-					saved_deck.append(path)
+					saved_deck.append(variant)
+			elif entry is String:
+				# Migrate old saves that stored only the base card path.
+				var path: String = str(entry)
+				if card_collection.has(path) and ResourceLoader.exists(path):
+					var legacy_card: CardData = load(path) as CardData
+					if legacy_card != null:
+						var legacy_variant: Dictionary = {
+							"path": path,
+							"rarity": int(CardData.Rarity.NORMAL),
+							"up": legacy_card.up,
+							"right": legacy_card.right,
+							"down": legacy_card.down,
+							"left": legacy_card.left,
+							"mythic_ability": "",
+							"mythic_description": ""
+						}
+						saved_deck.append(legacy_variant)
+
 	if saved_deck.is_empty():
 		setup_default_deck()
 		save_card_collection()
@@ -274,10 +297,29 @@ func load_card_collection() -> void:
 
 func setup_default_deck() -> void:
 	saved_deck.clear()
+
 	for card_path: String in card_collection:
 		if saved_deck.size() >= DECK_SIZE:
 			break
-		saved_deck.append(card_path)
+		if not ResourceLoader.exists(card_path):
+			continue
+
+		var card_data: CardData = load(card_path) as CardData
+		if card_data == null:
+			continue
+
+		var variant: Dictionary = {
+			"path": card_path,
+			"rarity": int(CardData.Rarity.NORMAL),
+			"up": card_data.up,
+			"right": card_data.right,
+			"down": card_data.down,
+			"left": card_data.left,
+			"mythic_ability": "",
+			"mythic_description": ""
+		}
+
+		saved_deck.append(variant)
 
 
 func clear_battle_hand() -> void:
