@@ -1,157 +1,276 @@
 [gd_scene format=3 uid="uid://c3jxj7kn5uyu8"]
 
-[ext_resource type="Script" uid="uid://cydf2atyihvli" path="res://GameManager/Card/card.gd" id="1_f23u7"]
-[ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/RedDragon.tres" id="2_santm"]
-[ext_resource type="Texture2D" uid="uid://dxap5x47n8ngx" path="res://background/IMG_02524.png" id="3_k0mop"]
+[ext_resource type="PackedScene" uid="uid://dmnro40lw3cq8" path="res://GameManager/Board/board_slot.tscn" id="1_1ipnq"]
+[ext_resource type="Script" uid="uid://ps0ncocjuvj1" path="res://GameManager/Board/game.gd" id="1_8uba0"]
+[ext_resource type="PackedScene" uid="uid://ppqi1v4d3cp6" path="res://GameManager/Card/card.tscn" id="3_ry4gh"]
+[ext_resource type="Resource" uid="uid://bpmhvg34pyxsx" path="res://GameManager/Card/Type/plants/Pincher.tres" id="3_xxdnd"]
+[ext_resource type="Resource" uid="uid://bfv57woeiaaww" path="res://GameManager/Card/Type/outsider/Angel.tres" id="4_mjqcq"]
+[ext_resource type="Resource" uid="uid://cjinlv1qdvl2f" path="res://GameManager/Card/Type/monstrosity/Manticore.tres" id="4_xskei"]
+[ext_resource type="Resource" uid="uid://d38ttqf7iet6x" path="res://GameManager/Card/Type/humanoid/Human.tres" id="5_dsbpe"]
+[ext_resource type="Resource" uid="uid://b8n3srx6y85fk" path="res://GameManager/Card/Type/aberrations/Abalith.tres" id="6_gpak1"]
+[ext_resource type="Resource" uid="uid://pwkhvwft78qe" path="res://GameManager/Card/Type/vermin/Rats.tres" id="6_om1jj"]
+[ext_resource type="Resource" uid="uid://2s5pduvajxcj" path="res://GameManager/Card/Type/undead/Zombie.tres" id="10_mjqcq"]
+[ext_resource type="PackedScene" uid="uid://djgokqx2rcnyc" path="res://menus/PauseMenu.tscn" id="11_v7uax"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yifny"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fchye"]
+bg_color = Color(1, 0.15134394, 0.10833273, 1)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nl4ll"]
-texture = ExtResource("3_k0mop")
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+bg_color = Color(0, 0, 0, 1)
 
-[node name="card" type="Control" unique_id=953183884]
-custom_minimum_size = Vector2(160, 220)
-custom_maximum_size = Vector2(160, 220)
+[node name="game" type="Control" unique_id=1807526743]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_f23u7")
-data = ExtResource("2_santm")
+script = ExtResource("1_8uba0")
 
-[node name="CardBackground" type="Panel" parent="." unique_id=1510575102]
+[node name="background" type="ColorRect" parent="." unique_id=121411933]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_yifny")
+color = Color(0.21950102, 0.21950102, 0.21950102, 1)
 
-[node name="Background" type="Panel" parent="." unique_id=229819882]
+[node name="OpponentHand" type="VBoxContainer" parent="." unique_id=646436207]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -9.0
-offset_top = 13.0
-offset_right = 9.0
-offset_bottom = -19.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_nl4ll")
+anchors_preset = -1
+anchor_right = 0.017
+anchor_bottom = 0.031000001
+offset_left = 1473.0
+offset_top = 6.0
+offset_right = 1613.416
+offset_bottom = 1101.912
 
-[node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
+[node name="card1" parent="OpponentHand" unique_id=953183884 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("3_xxdnd")
+
+[node name="card2" parent="OpponentHand" unique_id=1009698728 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("4_mjqcq")
+
+[node name="card3" parent="OpponentHand" unique_id=1299776937 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("5_dsbpe")
+
+[node name="card4" parent="OpponentHand" unique_id=43546484 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("6_om1jj")
+
+[node name="card5" parent="OpponentHand" unique_id=1922234138 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("4_mjqcq")
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1170509071]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -130.0
-offset_top = -96.0
-offset_right = 131.0
-offset_bottom = 100.0
+offset_left = -571.0
+offset_top = -347.0
+offset_right = 582.0
+offset_bottom = 349.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
 
-[node name="RarityLabel" type="Label" parent="." unique_id=1194429992]
-z_index = 1
-layout_mode = 0
-offset_left = -9.0
-offset_top = 24.0
-offset_right = 61.0
-offset_bottom = 52.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 16
-text = "N"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="UpValue" type="Label" parent="." unique_id=1294770993]
-z_index = 1
-layout_mode = 0
-offset_left = 66.0
-offset_top = 22.0
-offset_right = 92.0
-offset_bottom = 50.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 20
-text = "10"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="LeftValue" type="Label" parent="." unique_id=1461346970]
-layout_mode = 0
-offset_left = 13.0
-offset_top = 92.0
-offset_right = 41.0
-offset_bottom = 120.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 20
-text = "8"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RightValue" type="Label" parent="." unique_id=158653125]
-layout_mode = 0
-offset_left = 119.0
-offset_top = 93.0
-offset_right = 147.0
-offset_bottom = 121.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 20
-text = "7"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DownValue" type="Label" parent="." unique_id=1919193165]
-layout_mode = 0
-offset_left = 68.0
-offset_top = 164.0
-offset_right = 93.0
-offset_bottom = 192.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 20
-text = "6"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="NameLabel" type="Label" parent="." unique_id=1529218321]
-layout_mode = 0
-offset_left = 1.0
-offset_top = -7.0
-offset_right = 160.0
-offset_bottom = 21.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 17
-text = "RED DRAGON"
-horizontal_alignment = 1
-vertical_alignment = 2
-
-[node name="BonusContainer" type="VBoxContainer" parent="." unique_id=1238180898]
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -24.0
-offset_right = 160.0
-offset_bottom = -1.0
-grow_vertical = 0
-mouse_filter = 2
-
-[node name="BonusLabel" type="Label" parent="BonusContainer" unique_id=12460974]
+[node name="Board" type="GridContainer" parent="CenterContainer" unique_id=1040014715]
 layout_mode = 2
-theme_override_colors/font_color = Color(7.219613e-08, 0.6722755, 9.62615e-07, 1)
-theme_override_font_sizes/font_size = 13
-text = "⚔ +1"
+columns = 3
+
+[node name="Slot0" parent="CenterContainer/Board" unique_id=1330985163 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+
+[node name="Slot1" parent="CenterContainer/Board" unique_id=2009752061 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 1
+
+[node name="Slot2" parent="CenterContainer/Board" unique_id=690545950 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 2
+
+[node name="Slot3" parent="CenterContainer/Board" unique_id=110755725 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 3
+
+[node name="Slot4" parent="CenterContainer/Board" unique_id=250335061 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 4
+
+[node name="Slot5" parent="CenterContainer/Board" unique_id=1876239239 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 5
+
+[node name="Slot6" parent="CenterContainer/Board" unique_id=1611695933 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 6
+
+[node name="Slot7" parent="CenterContainer/Board" unique_id=497116356 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 7
+
+[node name="Slot8" parent="CenterContainer/Board" unique_id=540948960 instance=ExtResource("1_1ipnq")]
+layout_mode = 2
+slot_index = 8
+
+[node name="PlayerHand" type="VBoxContainer" parent="." unique_id=9067640]
+z_index = 1
+layout_mode = 0
+offset_right = 203.0
+offset_bottom = 1116.0
+
+[node name="card1" parent="PlayerHand" unique_id=1468111689 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+
+[node name="card2" parent="PlayerHand" unique_id=790538994 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("4_xskei")
+
+[node name="card3" parent="PlayerHand" unique_id=431463804 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("5_dsbpe")
+
+[node name="card4" parent="PlayerHand" unique_id=1101321276 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("6_gpak1")
+
+[node name="card5" parent="PlayerHand" unique_id=401886691 instance=ExtResource("3_ry4gh")]
+layout_mode = 2
+data = ExtResource("10_mjqcq")
+
+[node name="UI" type="Control" parent="." unique_id=183955647]
+z_index = 1
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -632.0
+offset_top = 43.0
+offset_right = -592.0
+offset_bottom = 83.0
+grow_horizontal = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI" unique_id=486022729]
+layout_mode = 0
+offset_right = 218.0
+offset_bottom = 182.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/VBoxContainer" unique_id=331194807]
+layout_mode = 2
+
+[node name="CombatTypeLabel" type="Label" parent="UI/VBoxContainer/HBoxContainer" unique_id=1253611119]
+layout_mode = 2
+text = "Normal"
+
+[node name="CombatInfoLabel" type="Label" parent="UI/VBoxContainer/HBoxContainer" unique_id=1521234244]
+layout_mode = 2
+
+[node name="health" type="VBoxContainer" parent="UI/VBoxContainer/HBoxContainer" unique_id=992193252]
+layout_mode = 2
+
+[node name="HealthLabel" type="Label" parent="UI/VBoxContainer/HBoxContainer/health" unique_id=941133477]
+layout_mode = 2
+text = "Health"
+
+[node name="HealthBar" type="ProgressBar" parent="UI/VBoxContainer/HBoxContainer/health" unique_id=113094200]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_fchye")
+max_value = 5.0
+step = 1.0
+value = 5.0
+show_percentage = false
+
+[node name="InventoryButton" type="Button" parent="UI/VBoxContainer/HBoxContainer" unique_id=1510491652]
+layout_mode = 2
+size_flags_vertical = 4
+text = "INVENTORY"
+
+[node name="TurnLabel" type="Label" parent="UI/VBoxContainer" unique_id=794200231]
+layout_mode = 2
+
+[node name="EncounterProgressLabel" type="Label" parent="UI/VBoxContainer" unique_id=1146180395]
+layout_mode = 2
+
+[node name="PlayerScore" type="Label" parent="UI/VBoxContainer" unique_id=647994442]
+layout_mode = 2
+
+[node name="EnemyScore" type="Label" parent="UI/VBoxContainer" unique_id=1141587065]
+layout_mode = 2
+
+[node name="ResultLabel" type="Label" parent="UI/VBoxContainer" unique_id=423275435]
+layout_mode = 2
+
+[node name="ContinueButton" type="Button" parent="UI" unique_id=1012002799]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 551.0
+offset_top = 875.0
+offset_right = 665.0
+offset_bottom = 917.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 24
+text = "Continue"
+
+[node name="PauseMenu" parent="." unique_id=310477368 instance=ExtResource("11_v7uax")]
+visible = false
+layout_mode = 1
+
+[node name="CoinFlipPanel" type="Panel" parent="." unique_id=330996126]
+visible = false
+z_index = 500
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CoinFlipPanel" unique_id=561020188]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.5
+offset_top = -56.0
+offset_right = 69.5
+offset_bottom = 56.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="CoinFlipPanel/VBoxContainer" unique_id=1608566498]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "WHO GOES FIRST?"
+
+[node name="CoinLabel" type="Label" parent="CoinFlipPanel/VBoxContainer" unique_id=1729818552]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+text = "🪙"
 horizontal_alignment = 1
-autowrap_mode = 3
+
+[node name="ResultLabel" type="Label" parent="CoinFlipPanel/VBoxContainer" unique_id=1753169364]
+layout_mode = 2
+theme_override_font_sizes/font_size = 50
+
+[node name="FlipButton" type="Button" parent="CoinFlipPanel/VBoxContainer" unique_id=281855754]
+layout_mode = 2
+text = "FLIP COIN"
+
+[connection signal="pressed" from="UI/VBoxContainer/HBoxContainer/InventoryButton" to="." method="_on_inventory_button_pressed"]
+[connection signal="pressed" from="UI/ContinueButton" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="CoinFlipPanel/VBoxContainer/FlipButton" to="." method="_on_flip_button_pressed"]

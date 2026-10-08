@@ -22,6 +22,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+color = Color(0.26666668, 0.31764707, 0.7294118, 1)
 
 [node name="TitleArea" type="VBoxContainer" parent="." unique_id=792947005]
 layout_mode = 1

@@ -129,10 +129,12 @@ func _on_card_clicked(card: GameCard) -> void:
 		return
 	if card.owner_id != PLAYER:
 		return
-	if selected_card != null:
-		selected_card.position.y = 0
+	if selected_card != null and selected_card != card:
+		selected_card.return_to_starting_position()
 	selected_card = card
+	selected_card.is_selected = true
 	selected_card.position.y = -20
+	selected_card.position.x = 60
 	AudioManager.play_sfx("card_select")
 	print("Selected: ", card.data.card_name)
 
@@ -622,6 +624,8 @@ func create_player_hand_from_run() -> void:
 		card.data = card_data
 		card.update_card()
 		card.set_card_owner(PLAYER)
+		await get_tree().process_frame
+		card.save_starting_position()
 		card.reset_combat_abilities()
 		card.card_clicked.connect(_on_card_clicked)
 		print(

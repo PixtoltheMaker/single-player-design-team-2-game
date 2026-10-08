@@ -9,6 +9,8 @@
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nl4ll"]
 texture = ExtResource("3_yifny")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
 custom_maximum_size = Vector2(160, 220)
@@ -45,6 +47,11 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_nl4ll")
 
+[node name="ColorRect" type="ColorRect" parent="." unique_id=186997380]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 19.0
+
 [node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
 layout_mode = 1
 anchors_preset = 8
@@ -52,10 +59,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -130.0
-offset_top = -96.0
-offset_right = 131.0
-offset_bottom = 100.0
+offset_left = -61.0
+offset_top = -80.0
+offset_right = 63.0
+offset_bottom = 75.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -69,7 +76,6 @@ offset_left = -9.0
 offset_top = 24.0
 offset_right = 61.0
 offset_bottom = 52.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 16
 text = "N"
 horizontal_alignment = 1
@@ -137,6 +143,7 @@ horizontal_alignment = 1
 vertical_alignment = 2
 
 [node name="BonusContainer" type="VBoxContainer" parent="." unique_id=1238180898]
+z_index = 1
 custom_minimum_size = Vector2(160, 0)
 layout_mode = 1
 anchors_preset = 2
@@ -149,9 +156,39 @@ grow_vertical = 0
 mouse_filter = 2
 
 [node name="BonusLabel" type="Label" parent="BonusContainer" unique_id=12460974]
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(7.219613e-08, 0.6722755, 9.62615e-07, 1)
 theme_override_font_sizes/font_size = 13
 text = "⚔ +1"
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="CardBack" type="Panel" parent="." unique_id=2119397874]
+visible = false
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
+
+[node name="QuestionLabel" type="Label" parent="CardBack" unique_id=384368820]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 60
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=1159691408]
+layout_mode = 0
+offset_top = 194.0
+offset_right = 160.0
+offset_bottom = 220.0

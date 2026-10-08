@@ -14,8 +14,8 @@ var working_deck: Array[String] = []
 
 func _ready() -> void:
 	print("========== DECK BUILDER ==========")
-	print("Collection size: ", RunManager.card_collection.size())
-	for card_path: String in RunManager.card_collection:
+	print("Collection size: ", RunManager.card_collection_variants.size())
+	for card_path: Dictionary in RunManager.card_collection_variants:
 		print("Unlocked card: ", card_path)
 	working_deck = RunManager.saved_deck.duplicate()
 	create_collection()
@@ -27,30 +27,28 @@ func create_collection() -> void:
 	for child: Node in collection_grid.get_children():
 		child.queue_free()
 	print("========== DECK BUILDER ==========")
-	print("Collection size: ", RunManager.card_collection.size())
-	for card_path: String in RunManager.card_collection:
+	print("Collection size: ", RunManager.card_collection_variants.size())
+	for card_path: Dictionary in RunManager.card_collection_variants:
 		print("Trying collection card: ", card_path)
-		if not ResourceLoader.exists(card_path):
-			push_error("Card file does not exist: " + card_path)
-			continue
-		var resource: Resource = load(card_path)
-		if resource == null:
-			push_error("Could not load card: " + card_path)
-			continue
-		if not resource is CardData:
-			push_error("Not CardData: " + card_path)
-			continue
-		var card_data: CardData = resource as CardData
-		print("Creating button for: ", card_data.card_name)
-		var button: DeckCardButton = DECK_CARD_SCENE.instantiate() as DeckCardButton
-		if button == null:
-			push_error("Could not instantiate DeckCardButton.")
-			continue
-		collection_grid.add_child(button)
-		button.setup(card_path, card_data)
-		button.card_pressed.connect(_on_collection_card_pressed)
-	print("Buttons created: ", collection_grid.get_child_count())
-	print("===================================")
+	for variant: Dictionary in RunManager.card_collection_variants:
+	var card_path: String = str(variant.get("path", ""))
+	if card_path.is_empty():
+		continue
+	if not ResourceLoader.exists(card_path):
+		push_warning("Card does not exist: " + card_path)
+		continue
+	var card_data: CardData = RunManager.create_saved_card_variant(variant)
+	if card_data == null:
+		push_warning("Could not create card variant: " + card_path)
+		continue
+	var card_button: DeckCardButton = DECK_CARD_BUTTON_SCENE.instantiate() as DeckCardButton
+	if card_button == null:
+		continue
+	available_cards_container.add_child(card_button)
+	card_button.setup_variant(variant, card_data)
+	card_button.card_pressed.connect(
+		_on_available_card_pressed.bind(variant)
+	))
 
 
 func _on_collection_card_pressed(card_path: String) -> void:
