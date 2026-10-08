@@ -2,14 +2,16 @@
 
 [ext_resource type="Script" uid="uid://cydf2atyihvli" path="res://GameManager/Card/card.gd" id="1_e46js"]
 [ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/RedDragon.tres" id="2_1er02"]
-[ext_resource type="Texture2D" uid="uid://dxap5x47n8ngx" path="res://background/IMG_02524.png" id="3_yifny"]
+[ext_resource type="Texture2D" uid="uid://castisjesivkg" path="res://background/card front.png" id="3_nl4ll"]
+[ext_resource type="Texture2D" uid="uid://d1f7f7hh41tyl" path="res://background/card back.png" id="4_0t4us"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yifny"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nl4ll"]
-texture = ExtResource("3_yifny")
+texture = ExtResource("3_nl4ll")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_rawt1"]
+texture = ExtResource("4_0t4us")
 
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
@@ -38,19 +40,11 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -9.0
-offset_top = 13.0
-offset_right = 9.0
-offset_bottom = -19.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_nl4ll")
-
-[node name="ColorRect" type="ColorRect" parent="." unique_id=186997380]
-layout_mode = 0
-offset_right = 160.0
-offset_bottom = 19.0
 
 [node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
 layout_mode = 1
@@ -97,9 +91,9 @@ vertical_alignment = 1
 [node name="LeftValue" type="Label" parent="." unique_id=1461346970]
 layout_mode = 0
 offset_left = 13.0
-offset_top = 92.0
+offset_top = 96.0
 offset_right = 41.0
-offset_bottom = 120.0
+offset_bottom = 124.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "8"
@@ -109,9 +103,9 @@ vertical_alignment = 1
 [node name="RightValue" type="Label" parent="." unique_id=158653125]
 layout_mode = 0
 offset_left = 119.0
-offset_top = 93.0
+offset_top = 96.0
 offset_right = 147.0
-offset_bottom = 121.0
+offset_bottom = 124.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "7"
@@ -120,10 +114,10 @@ vertical_alignment = 1
 
 [node name="DownValue" type="Label" parent="." unique_id=1919193165]
 layout_mode = 0
-offset_left = 68.0
-offset_top = 164.0
-offset_right = 93.0
-offset_bottom = 192.0
+offset_left = 67.0
+offset_top = 171.0
+offset_right = 92.0
+offset_bottom = 199.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "6"
@@ -149,9 +143,8 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -24.0
+offset_top = -21.0
 offset_right = 160.0
-offset_bottom = -1.0
 grow_vertical = 0
 mouse_filter = 2
 
@@ -162,6 +155,7 @@ theme_override_colors/font_color = Color(7.219613e-08, 0.6722755, 9.62615e-07, 1
 theme_override_font_sizes/font_size = 13
 text = "⚔ +1"
 horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="CardBack" type="Panel" parent="." unique_id=2119397874]
@@ -173,22 +167,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
-
-[node name="QuestionLabel" type="Label" parent="CardBack" unique_id=384368820]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/font_size = 60
-text = "?"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ColorRect2" type="ColorRect" parent="." unique_id=1159691408]
-layout_mode = 0
-offset_top = 194.0
-offset_right = 160.0
-offset_bottom = 220.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_rawt1")

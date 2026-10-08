@@ -12,6 +12,7 @@ enum RunLength {
 @onready var run_info_label: Label = $CenterContainer/Panel/VBoxContainer/RunInfoLabel
 @onready var start_button: Button = $CenterContainer/Panel/VBoxContainer/StartButton
 @onready var back_button: Button = $CenterContainer/Panel/VBoxContainer/BackButton
+@onready var tutorial_button: Button = $CenterContainer/Panel/VBoxContainer/TutorialButton
 
 var selected_run_length: RunLength = RunLength.STANDARD
 
@@ -20,7 +21,8 @@ var selected_bosses: int = 2
 
 
 func _ready() -> void:
-	select_normal()
+	tutorial_button.pressed.connect(_on_tutorial_pressed)
+	update_difficulty_buttons()
 
 
 func select_easy() -> void:
@@ -65,10 +67,12 @@ func _on_easy_button_pressed() -> void:
 
 
 func _on_normal_button_pressed() -> void:
+	normal_button.disabled = not RunManager.is_difficulty_unlocked("normal")
 	select_normal()
 
 
 func _on_hard_button_pressed() -> void:
+	hard_button.disabled = not RunManager.is_difficulty_unlocked("hard")
 	select_hard()
 
 
@@ -81,3 +85,23 @@ func _on_start_button_pressed() -> void:
 
 func _on_back_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://menus/MainMenu.tscn")
+
+
+func update_difficulty_buttons() -> void:
+	if RunManager.is_difficulty_unlocked("normal"):
+		normal_button.text = "NORMAL"
+		normal_button.disabled = false
+	else:
+		normal_button.text = "NORMAL\n🔒 Beat Easy to unlock"
+		normal_button.disabled = true
+
+	if RunManager.is_difficulty_unlocked("hard"):
+		hard_button.text = "HARD"
+		hard_button.disabled = false
+	else:
+		hard_button.text = "HARD\n🔒 Beat Normal to unlock"
+		hard_button.disabled = true
+
+
+func _on_tutorial_pressed() -> void:
+	get_tree().change_scene_to_file("res://menus/Tutorial.tscn")

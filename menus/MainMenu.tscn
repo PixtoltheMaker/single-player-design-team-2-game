@@ -186,13 +186,15 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -127.0
-offset_top = -34.0
+offset_left = -135.0
+offset_top = -45.0
+offset_right = -8.0
+offset_bottom = -11.0
 grow_horizontal = 0
 grow_vertical = 0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
-text = "Version 0.1"
+text = "Version 0.5"
 
 [connection signal="pressed" from="MenuPanel/VBoxContainer/NewRunButton" to="." method="_on_new_run_button_pressed"]
 [connection signal="pressed" from="MenuPanel/VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]

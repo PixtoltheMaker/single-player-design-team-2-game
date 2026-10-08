@@ -1,31 +1,47 @@
 extends Control
 
-const LOCKED_CARD_SCENE = preload("res://GameManager/Card/LockedCard.tscn")
-const CARD_SCENE = preload("res://GameManager/Card/card.tscn")
+const LOCKED_CARD_SCENE: PackedScene = preload("res://GameManager/Card/LockedCard.tscn")
+const CARD_SCENE: PackedScene = preload("res://GameManager/Card/card.tscn")
 
 const PLAYER: int = 0
 
-@onready var card_container: GridContainer = $MarginContainer/VBoxContainer/ScrollContainer/CardGrid
+@onready var collection_grid: GridContainer = $MarginContainer/VBoxContainer/ScrollContainer/CollectionGrid
 @onready var details_panel: Panel = $CardDetailsPanel
 @onready var selected_name_label: Label = $CardDetailsPanel/VBoxContainer/SelectedNameLabel
 @onready var selected_artwork: TextureRect = $CardDetailsPanel/VBoxContainer/SelectedArtwork
 @onready var values_label: Label = $CardDetailsPanel/VBoxContainer/ValuesLabel
 @onready var description_label: Label = $CardDetailsPanel/VBoxContainer/DescriptionLabel
+@onready var main_container: MarginContainer = $MarginContainer
+@onready var main_vbox: VBoxContainer = $MarginContainer/VBoxContainer
+@onready var scroll_container: ScrollContainer = $MarginContainer/VBoxContainer/ScrollContainer
 
 var all_card_paths: Array[String] = []
 
 
 func _ready() -> void:
+	main_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_container.custom_minimum_size = Vector2(0, 500)
+	collection_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	collection_grid.custom_minimum_size = Vector2(900, 0)
+	collection_grid.columns = 4
 	load_all_cards()
 	build_collection()
 	details_panel.visible = false
+	call_deferred("_debug_collection_layout")
 
 
 func load_all_cards() -> void:
 	all_card_paths.clear()
+	print("Starting card scan...")
+	print("Folder exists: ", DirAccess.dir_exists_absolute("res://GameManager/Card/Type"))
 	scan_card_folder("res://GameManager/Card/Type")
-	print("Collection found ", all_card_paths.size(), " cards.")
-	print("Collection found ", all_card_paths.size(), " cards.")
+	print("Cards found: ", all_card_paths.size())
+	for path: String in all_card_paths:
+		print("Found card: ", path)
 
 
 func scan_card_folder(folder_path: String) -> void:
@@ -52,18 +68,28 @@ func scan_card_folder(folder_path: String) -> void:
 
 
 func build_collection() -> void:
-	for child: Node in card_container.get_children():
+	print("Collection grid valid: ", is_instance_valid(collection_grid))
+	for child: Node in collection_grid.get_children():
+		collection_grid.remove_child(child)
 		child.queue_free()
+	print("Building collection from ", all_card_paths.size(), " cards.")
 	for card_path: String in all_card_paths:
 		create_card_variants(card_path)
+	print("Cards added to grid: ", collection_grid.get_child_count())
+	print("Grid size: ", collection_grid.size)
+	print("Grid position: ", collection_grid.global_position)
+	print("Grid visible: ", collection_grid.is_visible_in_tree())
 
 
 func create_card_variants(card_path: String) -> void:
 	var base_card: CardData = load(card_path) as CardData
 	if base_card == null:
+		push_warning("Could not load card: " + card_path)
 		return
 	var normal_card: CardData = base_card.duplicate() as CardData
 	normal_card.rarity = CardData.Rarity.NORMAL
+	normal_card.mythic_ability = ""
+	normal_card.mythic_description = ""
 	create_collection_entry(
 		card_path,
 		CardData.Rarity.NORMAL,
@@ -91,46 +117,89 @@ func create_card_variants(card_path: String) -> void:
 		)
 
 
+# ============================================================
+# DETERMINE IF VARIANT IS UNLOCKED
+# ============================================================
+
 func create_collection_entry(card_path: String, rarity: CardData.Rarity, generated_card: CardData) -> void:
 	var saved_variant: Dictionary = get_saved_variant(card_path, rarity)
 	if not saved_variant.is_empty():
-		var saved_card: CardData = RunManager.create_saved_card_variant(saved_variant)
+		var saved_card: CardData = RunManager.create_saved_card_variant(
+			saved_variant
+		)
 		if saved_card != null:
 			create_unlocked_card(saved_card)
 		return
 	create_locked_card(generated_card)
 
 
+# ============================================================
+# FIND SAVED VARIANT
+# ============================================================
+
 func get_saved_variant(card_path: String, rarity: CardData.Rarity) -> Dictionary:
 	for variant: Dictionary in RunManager.card_collection_variants:
-		var saved_path: String = str(variant.get("path", ""))
-		var saved_rarity: int = int(variant.get("rarity", CardData.Rarity.NORMAL))
+		var saved_path: String = str(
+			variant.get("path", "")
+		)
+		var saved_rarity: int = int(
+			variant.get(
+				"rarity",
+				CardData.Rarity.NORMAL
+			)
+		)
 		if saved_path == card_path:
 			if saved_rarity == int(rarity):
 				return variant
 	return {}
 
 
-func create_unlocked_card(card_data: CardData) -> void:
-	var card_instance: GameCard = CARD_SCENE.instantiate() as GameCard
-	if card_instance == null:
-		return
-	card_instance.data = card_data
-	card_instance.set_card_owner(PLAYER)
-	card_instance.custom_minimum_size = Vector2(180, 250)
-	card_container.add_child(card_instance)
-	card_instance.card_clicked.connect(_on_card_clicked)
+# ============================================================
+# CREATE UNLOCKED CARD
+# ============================================================
 
+func create_unlocked_card(card_data: CardData) -> void:
+
+	if card_data == null:
+		return
+	var card: GameCard = CARD_SCENE.instantiate() as GameCard
+	if card == null:
+		push_error("Could not instantiate GameCard.")
+		return
+	collection_grid.add_child(card)
+	card.custom_minimum_size = Vector2(220, 300)
+	card.set_card_data(card_data)
+	card.set_card_owner(PLAYER)
+	if not card.card_clicked.is_connected(_on_card_clicked):
+		card.card_clicked.connect(_on_card_clicked)
+	print(
+		"Displayed collection card: ",
+		card_data.card_name,
+		" | Rarity: ",
+		card_data.rarity
+	)
+
+
+# ============================================================
+# CREATE LOCKED CARD
+# ============================================================
 
 func create_locked_card(card_data: CardData) -> void:
+	if card_data == null:
+		return
 	var locked_card: Control = LOCKED_CARD_SCENE.instantiate() as Control
 	if locked_card == null:
+		push_error("Could not instantiate LockedCard.")
 		return
-	locked_card.custom_minimum_size = Vector2(180, 250)
-	var question_mark: Label = locked_card.get_node_or_null("QuestionMark") as Label
+	locked_card.custom_minimum_size = Vector2(220, 300)
+	var question_mark: Label = locked_card.get_node_or_null(
+		"QuestionMark"
+	) as Label
 	if question_mark != null:
 		question_mark.text = "?"
-	var rarity_label: Label = locked_card.get_node_or_null("RarityLabel") as Label
+	var rarity_label: Label = locked_card.get_node_or_null(
+		"RarityLabel"
+	) as Label
 	if rarity_label != null:
 		match card_data.rarity:
 			CardData.Rarity.NORMAL:
@@ -139,15 +208,7 @@ func create_locked_card(card_data: CardData) -> void:
 				rarity_label.text = "◆◆"
 			CardData.Rarity.MYTHIC:
 				rarity_label.text = "◆◆◆"
-	card_container.add_child(locked_card)
-
-
-func _on_deck_builder_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://menus/DeckBuilder.tscn")
-
-
-func _on_back_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://menus/MainMenu.tscn")
+	collection_grid.add_child(locked_card)
 
 
 func _on_card_clicked(card: GameCard) -> void:
@@ -158,12 +219,17 @@ func _on_card_clicked(card: GameCard) -> void:
 	var card_data: CardData = card.data
 	details_panel.visible = true
 	selected_name_label.text = card_data.card_name
-	selected_artwork.texture = card_data.artwork
+	if card_data.artwork != null:
+		selected_artwork.texture = card_data.artwork
+		selected_artwork.visible = true
+	else:
+		selected_artwork.texture = null
+		selected_artwork.visible = false
 	values_label.text = (
-		"UP: " + str(card_data.up) +
-		"\nRIGHT: " + str(card_data.right) +
-		"\nDOWN: " + str(card_data.down) +
-		"\nLEFT: " + str(card_data.left)
+		"UP: " + str(card_data.up)
+		+ "\nRIGHT: " + str(card_data.right)
+		+ "\nDOWN: " + str(card_data.down)
+		+ "\nLEFT: " + str(card_data.left)
 	)
 	description_label.text = get_card_description(card_data)
 
@@ -186,25 +252,25 @@ func get_card_description(card_data: CardData) -> String:
 	return text
 
 
+func _on_deck_builder_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://menus/DeckBuilder.tscn")
 
 
+func _on_back_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://menus/MainMenu.tscn")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
+func _debug_collection_layout() -> void:
+	print("ScrollContainer size: ", scroll_container.size)
+	print("Grid size: ", collection_grid.size)
+	print("Grid child count: ", collection_grid.get_child_count())
+	for i in range(mini(3, collection_grid.get_child_count())):
+		var child: Control = collection_grid.get_child(i) as Control
+		if child != null:
+			print(
+				"Card ", i,
+				" | size: ", child.size,
+				" | visible: ", child.is_visible_in_tree(),
+				" | position: ", child.global_position,
+				" | modulate: ", child.modulate
+			)

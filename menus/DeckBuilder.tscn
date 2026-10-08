@@ -92,7 +92,11 @@ layout_mode = 2
 text = "CURRENT DECK"
 horizontal_alignment = 1
 
-[node name="DeckList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Content/DeckPanel/VBoxContainer" unique_id=36030352]
+[node name="VScrollBar" type="ScrollContainer" parent="MarginContainer/VBoxContainer/Content/DeckPanel/VBoxContainer" unique_id=1884607261]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DeckList" type="VBoxContainer" parent="MarginContainer/VBoxContainer/Content/DeckPanel/VBoxContainer/VScrollBar" unique_id=36030352]
 layout_mode = 2
 
 [node name="SaveDeckButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1859640938]

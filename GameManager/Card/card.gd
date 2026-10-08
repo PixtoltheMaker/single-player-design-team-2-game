@@ -20,7 +20,6 @@ var is_selected: bool = false
 @onready var left_value: Label = $LeftValue
 @onready var name_label: Label = $NameLabel
 @onready var card_back: Panel = $CardBack
-@onready var question_label: Label = $CardBack/QuestionLabel
 @onready var bonus_container: VBoxContainer = $BonusContainer
 @onready var bonus_label: Label = $BonusContainer/BonusLabel
 

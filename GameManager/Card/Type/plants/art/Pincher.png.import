@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bbw3k5tjptt4h"
-path="res://.godot/imported/card.png-3b0f7d3f710407d8c0010b8d3d1b38ac.ctex"
+uid="uid://wx1xepp8bow"
+path="res://.godot/imported/Pincher.png-487fb1e3e925703cbfe0831b0328425c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://GameManager/Card/Art/card.png"
-dest_files=["res://.godot/imported/card.png-3b0f7d3f710407d8c0010b8d3d1b38ac.ctex"]
+source_file="res://GameManager/Card/Type/plants/art/Pincher.png"
+dest_files=["res://.godot/imported/Pincher.png-487fb1e3e925703cbfe0831b0328425c.ctex"]
 
 [params]
 

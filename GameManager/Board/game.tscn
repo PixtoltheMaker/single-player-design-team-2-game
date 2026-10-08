@@ -41,9 +41,9 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 0.017
 anchor_bottom = 0.031000001
-offset_left = 950.0
+offset_left = 1017.0
 offset_top = 6.0
-offset_right = 1090.416
+offset_right = 1157.416
 offset_bottom = 1101.912
 
 [node name="card1" parent="OpponentHand" unique_id=953183884 instance=ExtResource("3_ry4gh")]
@@ -146,20 +146,22 @@ data = ExtResource("10_mjqcq")
 
 [node name="UI" type="Control" parent="." unique_id=183955647]
 z_index = 1
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -632.0
-offset_top = 43.0
-offset_right = -592.0
-offset_bottom = 83.0
+offset_left = -438.0
+offset_top = 33.0
+offset_right = -138.0
+offset_bottom = 73.0
 grow_horizontal = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI" unique_id=486022729]
 layout_mode = 0
-offset_right = 218.0
-offset_bottom = 182.0
+offset_top = -29.0
+offset_right = 223.0
+offset_bottom = 153.0
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UI/VBoxContainer" unique_id=331194807]
 layout_mode = 2
@@ -214,10 +216,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = 551.0
-offset_top = 875.0
-offset_right = 665.0
-offset_bottom = 917.0
+offset_left = 377.0
+offset_top = 781.0
+offset_right = 491.0
+offset_bottom = 823.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/font_size = 24

@@ -52,6 +52,12 @@ theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 30
 text = "Choose how long you want your adventure to be."
 
+[node name="TutorialButton" type="Button" parent="CenterContainer/Panel/VBoxContainer" unique_id=26513816]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "Tutorial"
+
 [node name="EasyButton" type="Button" parent="CenterContainer/Panel/VBoxContainer" unique_id=1065621846]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)

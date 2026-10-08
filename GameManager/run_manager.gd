@@ -2,6 +2,7 @@ extends Node
 
 const RELIC_SAVE_PATH: String = "user://relics.cfg"
 const COLLECTION_SAVE_PATH: String = "user://collection.cfg"
+const DIFFICULTY_SAVE_PATH: String = "user://difficulty_progress.cfg"
 const BATTLE_HAND_SIZE: int = 5
 const DECK_SIZE: int = 5
 
@@ -70,8 +71,13 @@ var first_strike_active: bool = false
 var run_ending: bool = false
 var run_won: bool = false
 
+var easy_completed: bool = false
+var normal_completed: bool = false
+var hard_completed: bool = false
+
 
 func _ready() -> void:
+	load_difficulty_progress()
 	load_card_collection()
 	load_relics()
 
@@ -209,7 +215,6 @@ func is_card_unlocked(card_path: String) -> bool:
 func setup_starting_collection() -> void:
 	if not card_collection.is_empty():
 		return
-
 	add_starting_card("res://GameManager/Card/Type/dragons/RedDragon.tres")
 	add_starting_card("res://GameManager/Card/Type/humanoid/Elf(high).tres")
 	add_starting_card("res://GameManager/Card/Type/monstrosity/Manticore.tres")
@@ -596,16 +601,54 @@ func choose_boss_special_ability() -> void:
 	print("BOSS ABILITY: ", boss_special_ability)
 
 
+func is_difficulty_unlocked(difficulty: String) -> bool:
+	match difficulty:
+		"easy":
+			return true
+		"normal":
+			return easy_completed
+		"hard":
+			return normal_completed
+		"tutorial":
+			return true
+		_:
+			return false
 
 
+func complete_difficulty(difficulty: String) -> void:
+	match difficulty:
+		"easy":
+			easy_completed = true
+		"normal":
+			normal_completed = true
+		"hard":
+			hard_completed = true
+	save_difficulty_progress()
 
 
+func save_difficulty_progress() -> void:
+	var config := ConfigFile.new()
+	config.set_value("difficulty", "easy_completed", easy_completed)
+	config.set_value("difficulty", "normal_completed", normal_completed)
+	config.set_value("difficulty", "hard_completed", hard_completed)
+	var error: Error = config.save(DIFFICULTY_SAVE_PATH)
+	if error != OK:
+		push_error("Could not save difficulty progress. Error: " + str(error))
+	else:
+		print("Difficulty progress saved.")
 
 
-
-
-
-
+func load_difficulty_progress() -> void:
+	var config := ConfigFile.new()
+	var error: Error = config.load(DIFFICULTY_SAVE_PATH)
+	if error != OK:
+		easy_completed = false
+		normal_completed = false
+		hard_completed = false
+		return
+	easy_completed = bool(config.get_value("difficulty", "easy_completed", false))
+	normal_completed = bool(config.get_value("difficulty", "normal_completed", false))
+	hard_completed = bool(config.get_value("difficulty", "hard_completed", false))
 
 
 

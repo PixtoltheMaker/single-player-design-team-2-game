@@ -60,21 +60,26 @@ text = "Back"
 layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer" unique_id=11140650]
+custom_minimum_size = Vector2(0, 500)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="CardGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollContainer" unique_id=356121844]
+[node name="CollectionGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollContainer" unique_id=356121844]
+custom_minimum_size = Vector2(900, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
 columns = 4
 
 [node name="CardDetailsPanel" type="Panel" parent="." unique_id=839173306]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 0
-offset_left = 1406.0
+offset_left = 1071.0
 offset_top = 332.0
-offset_right = 1599.0
+offset_right = 1264.0
 offset_bottom = 778.0
 mouse_filter = 2
 

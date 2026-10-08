@@ -212,12 +212,11 @@ func check_direction(card: GameCard, target_position: Vector2i, direction: Strin
 	if can_capture:
 		capture_card(enemy, card.owner_id)
 	if card.has_mythic_ability("Petrify"):
-		if card.has_mythic_ability("Petrify"):
-			if not card.petrify_used:
-				card.petrify_used = true
-				enemy.petrified = true
+		if not card.petrify_used:
+			card.petrify_used = true
+			enemy.petrified = true
 			print(card.data.card_name, " petrified ", enemy.data.card_name)
-	return
+		return
 	if card.owner_id == PLAYER:
 		if RunManager.has_item("twin_blades"):
 			if not RunManager.twin_blades_used:
@@ -1192,6 +1191,7 @@ func start_first_turn_after_coin_flip() -> void:
 
 
 func _on_final_boss_complete() -> void:
+	RunManager.complete_difficulty(RunManager.run_difficulty)
 	get_tree().change_scene_to_file("res://menus/GameOver.tscn")
 
 
