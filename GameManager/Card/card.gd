@@ -21,7 +21,7 @@ var is_selected: bool = false
 @onready var name_label: Label = $NameLabel
 @onready var card_back: Panel = $CardBack
 @onready var bonus_container: VBoxContainer = $BonusContainer
-@onready var bonus_label: Label = $BonusContainer/BonusLabel
+@onready var bonus_icons: HBoxContainer = $BonusContainer/BonusIcons
 
 var petrified: bool = false
 var petrify_used: bool = false
@@ -163,78 +163,14 @@ func clear_bonus_display() -> void:
 func set_bonus_sources(sources: Array[Dictionary]) -> void:
 	bonus_sources = sources.duplicate(true)
 	displayed_bonus = 0
-	var has_item: bool = false
-	var has_buff: bool = false
-	var has_mythic: bool = false
-	var has_enemy: bool = false
 	for source: Dictionary in bonus_sources:
-		var amount: int = int(source.get("amount", 0))
-		var bonus_type: String = str(source.get("type", ""))
-		displayed_bonus += amount
-		match bonus_type:
-			"item", "relic":
-				has_item = true
-			"buff":
-				has_buff = true
-			"mythic":
-				has_mythic = true
-			"enemy":
-				has_enemy = true
-	if bonus_sources.is_empty():
-		clear_bonus_display()
+		displayed_bonus += int(source.get("amount", 0))
+	update_bonus_icons()
+	if bonus_sources.is_empty() or bonus_icons.get_child_count() == 0:
+		bonus_container.hide()
 		return
-	var display_text: String = ""
-	if has_item:
-		display_text += "⚔ "
-	if has_buff:
-		display_text += "⚡ "
-	if has_mythic:
-		display_text += "✦ "
-	if has_enemy:
-		display_text += "♛ "
-	if displayed_bonus >= 0:
-		display_text += "+" + str(displayed_bonus)
-	else:
-		display_text += str(displayed_bonus)
-	bonus_label.text = display_text
-	update_bonus_color()
-	update_bonus_tooltip()
 	bonus_container.show()
-
-
-func update_bonus_color() -> void:
-	var has_mythic: bool = false
-	var has_buff: bool = false
-	var has_enemy: bool = false
-	for source: Dictionary in bonus_sources:
-		var bonus_type: String = str(source.get("type", ""))
-		match bonus_type:
-			"mythic":
-				has_mythic = true
-			"buff":
-				has_buff = true
-			"enemy":
-				has_enemy = true
-	if has_mythic:
-		bonus_label.add_theme_color_override(
-			"font_color",
-			Color(0.75, 0.45, 1.0)
-		)
-	elif has_buff:
-		bonus_label.add_theme_color_override(
-			"font_color",
-			Color(0.4, 0.75, 1.0)
-		)
-	elif has_enemy:
-		bonus_label.add_theme_color_override(
-			"font_color",
-			Color(1.0, 0.4, 0.4)
-		)
-	else:
-		bonus_label.add_theme_color_override(
-			"font_color",
-			Color(0.4, 1.0, 0.5)
-		)
+	update_bonus_tooltip()
 
 
 func update_bonus_tooltip() -> void:
@@ -272,3 +208,89 @@ func save_starting_position() -> void:
 func return_to_starting_position() -> void:
 	position = starting_position
 	is_selected = false
+
+
+func update_bonus_icons() -> void:
+	for child in bonus_icons.get_children():
+		bonus_icons.remove_child(child)
+		child.queue_free()
+	for source: Dictionary in bonus_sources:
+		var texture: Texture2D = source.get("icon") as Texture2D
+		if texture == null:
+			continue
+		var icon := TextureRect.new()
+		icon.texture = texture
+		icon.custom_minimum_size = Vector2(20, 20)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.tooltip_text = str(source.get("name", "Bonus"))
+		bonus_icons.add_child(icon)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#

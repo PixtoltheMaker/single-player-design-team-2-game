@@ -14,7 +14,7 @@ enum RunLength {
 @onready var back_button: Button = $CenterContainer/Panel/VBoxContainer/BackButton
 @onready var tutorial_button: Button = $CenterContainer/Panel/VBoxContainer/TutorialButton
 
-var selected_run_length: RunLength = RunLength.STANDARD
+var selected_run_length: RunLength = RunLength.SHORT
 
 var selected_encounters: int = 12
 var selected_bosses: int = 2
@@ -22,44 +22,68 @@ var selected_bosses: int = 2
 
 func _ready() -> void:
 	tutorial_button.pressed.connect(_on_tutorial_pressed)
+	if RunManager.is_difficulty_unlocked("normal"):
+		select_normal()
+	else:
+		select_easy()
 	update_difficulty_buttons()
 
 
 func select_easy() -> void:
 	selected_run_length = RunLength.SHORT
-	selected_encounters = 8
+	selected_encounters = 12
 	selected_bosses = 1
-	run_info_label.text = ("SHORT RUN\n\n" + "Rooms: 12\n" + "Bosses: 1")
 	update_button_states()
 
 
 func select_normal() -> void:
+	if not RunManager.is_run_length_unlocked("standard"):
+		return
 	selected_run_length = RunLength.STANDARD
-	selected_encounters = 12
+	selected_encounters = 24
 	selected_bosses = 2
-	run_info_label.text = ("STANDARD RUN\n\n" + "Rooms: 24\n" + "Bosses: 2")
 	update_button_states()
 
 
 func select_hard() -> void:
+	if not RunManager.is_run_length_unlocked("long"):
+		return
 	selected_run_length = RunLength.LONG
-	selected_encounters = 18
+	selected_encounters = 36
 	selected_bosses = 3
-	run_info_label.text = ("LONG RUN\n\n" + "Rooms: 36\n" + "Bosses: 3")
 	update_button_states()
 
 
 func update_button_states() -> void:
 	easy_button.text = "SHORT RUN"
-	normal_button.text = "STANDARD RUN"
-	hard_button.text = "LONG RUN"
+	if RunManager.is_difficulty_unlocked("normal"):
+		normal_button.text = "STANDARD RUN"
+	else:
+		normal_button.text = "STANDARD RUN\n🔒 Beat Short to unlock"
+	if RunManager.is_difficulty_unlocked("hard"):
+		hard_button.text = "LONG RUN"
+	else:
+		hard_button.text = "LONG RUN\n🔒 Beat Normal to unlock"
 	match selected_run_length:
 		RunLength.SHORT:
-			easy_button.text = "> SHORT RUN <"
+			easy_button.text = "▶ SHORT RUN"
 		RunLength.STANDARD:
-			normal_button.text = "> STANDARD RUN <"
+			if RunManager.is_difficulty_unlocked("normal"):
+				normal_button.text = "▶ STANDARD RUN"
 		RunLength.LONG:
-			hard_button.text = "> LONG RUN <"
+			if RunManager.is_difficulty_unlocked("hard"):
+				hard_button.text = "▶ LONG RUN"
+	update_run_info()
+
+
+func update_run_info() -> void:
+	match selected_run_length:
+		RunLength.SHORT:
+			run_info_label.text = ("SHORT RUN\n\n" + "Rooms: 12\n" + "Bosses: 1")
+		RunLength.STANDARD:
+			run_info_label.text = ("STANDARD RUN\n\n" + "Rooms: 24\n" + "Bosses: 2")
+		RunLength.LONG:
+			run_info_label.text = ("LONG RUN\n\n" + "Rooms: 36\n" + "Bosses: 3")
 
 
 func _on_easy_button_pressed() -> void:
@@ -88,19 +112,11 @@ func _on_back_button_pressed() -> void:
 
 
 func update_difficulty_buttons() -> void:
-	if RunManager.is_difficulty_unlocked("normal"):
-		normal_button.text = "NORMAL"
-		normal_button.disabled = false
-	else:
-		normal_button.text = "NORMAL\n🔒 Beat Easy to unlock"
-		normal_button.disabled = true
-
-	if RunManager.is_difficulty_unlocked("hard"):
-		hard_button.text = "HARD"
-		hard_button.disabled = false
-	else:
-		hard_button.text = "HARD\n🔒 Beat Normal to unlock"
-		hard_button.disabled = true
+	var normal_unlocked: bool = RunManager.is_difficulty_unlocked("normal")
+	var hard_unlocked: bool = RunManager.is_difficulty_unlocked("hard")
+	normal_button.disabled = not normal_unlocked
+	hard_button.disabled = not hard_unlocked
+	update_button_states()
 
 
 func _on_tutorial_pressed() -> void:

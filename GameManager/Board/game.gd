@@ -5,7 +5,10 @@ const COMPUTER := 1
 const CARD_SCENE: PackedScene = preload("res://GameManager/Card/card.tscn")
 const RUN_INVENTORY = preload("uid://bqe5tibyclgvm")
 const INVENTORY_SCENE: PackedScene = preload("res://menus/run_inventory.tscn")
-
+const ITEM_DATA_PATHS: Dictionary = {
+	"iron_sword": "res://GameManager/Map/rooms/Item/Weapons/Iron_Sword.tres",
+	"ancient_sword": "res://GameManager/Map/rooms/Item/Relics/Ancient_Sword.tres"
+}
 
 enum AIDifficulty {
 	NORMAL,
@@ -623,6 +626,7 @@ func create_player_hand_from_run() -> void:
 		card.data = card_data
 		card.update_card()
 		card.set_card_owner(PLAYER)
+		get_card_bonus_sources(card)
 		await get_tree().process_frame
 		card.save_starting_position()
 		card.reset_combat_abilities()
@@ -674,6 +678,7 @@ func create_enemy_hand() -> void:
 			card.update_card()
 			card.set_card_owner(COMPUTER)
 			card.reset_combat_abilities()
+			get_card_bonus_sources(card)
 			if can_see_enemy_hand:
 				card.set_card_hidden(false)
 				card.visible = true
@@ -838,6 +843,96 @@ func setup_combat_buffs() -> void:
 	print("Player power bonus: ", combat_buff_value_bonus)
 	print("Enemy power bonus: ", enemy_combat_value_bonus)
 	print("============================")
+
+
+func get_card_bonus_sources(card: GameCard) -> Array[Dictionary]:
+	var sources: Array[Dictionary] = []
+	if card == null or card.data == null:
+		return sources
+	if card.owner_id == PLAYER:
+		if RunManager.has_item("iron_sword"):
+			sources.append({
+				"name": "Iron Sword",
+				"type": "item",
+				"amount": 1,
+				"icon": get_item_icon("iron_sword")
+			})
+		sources.append({
+				"name": "Ancient Sword",
+				"type": "relic",
+				"amount": 2,
+				"icon": get_item_icon("ancient_sword")
+			})
+		if RunManager.has_item("chainmail") and not RunManager.chainmail_used:
+			sources.append({
+				"name": "Chainmail",
+				"type": "item",
+				"amount": 1,
+				"icon": get_item_icon_by_id("chainmail")
+			})
+		if RunManager.has_combat_buff("extra_card_power"):
+			sources.append({
+				"name": "Power Surge",
+				"type": "buff",
+				"amount": 1
+			})
+		if RunManager.has_combat_buff("first_strike"):
+			if RunManager.first_strike_active:
+				sources.append({
+					"name": "First Strike",
+					"type": "buff",
+					"amount": 2
+				})
+		if RunManager.has_combat_buff("last_stand"):
+			if RunManager.player_health <= 1:
+				sources.append({
+					"name": "Last Stand",
+					"type": "buff",
+					"amount": 2
+				})
+		if card.data.rarity == CardData.Rarity.MYTHIC:
+			match card.data.mythic_ability:
+				"Dragon_Fury":
+					sources.append({
+						"name": "Dragon Fury",
+						"type": "mythic",
+						"amount": 2
+					})
+	elif card.owner_id == COMPUTER:
+		if RunManager.has_combat_buff("weakening_curse"):
+			sources.append({
+				"name": "Weakening Curse",
+				"type": "enemy",
+				"amount": -1
+			})
+		if RunManager.current_combat_type == "boss":
+			match RunManager.boss_special_ability:
+				"brutal_might":
+					sources.append({
+						"name": "Brutal Might",
+						"type": "enemy",
+						"amount": 1
+					})
+				"blood_rush":
+					var remaining_cards: int = 0
+					for child: Node in opponent_hand.get_children():
+						if child is GameCard:
+							remaining_cards += 1
+					if remaining_cards <= 2:
+						sources.append({
+							"name": "Blood Rush",
+							"type": "enemy",
+							"amount": 2
+						})
+				"vengeance":
+					if RunManager.boss_vengeance_active:
+						sources.append({
+							"name": "Vengeance",
+							"type": "enemy",
+							"amount": 2
+						})
+	card.set_bonus_sources(sources)
+	return sources
 
 
 func get_card_attack_power(card: GameCard, direction: String, enemy_card: GameCard = null) -> int:
@@ -1191,7 +1286,16 @@ func start_first_turn_after_coin_flip() -> void:
 
 
 func _on_final_boss_complete() -> void:
-	RunManager.complete_difficulty(RunManager.run_difficulty)
+	var completed_difficulty: String = ""
+	match RunManager.game_difficulty:
+		0:
+			completed_difficulty = "easy"
+		1:
+			completed_difficulty = "normal"
+		2:
+			completed_difficulty = "hard"
+	if not completed_difficulty.is_empty():
+		RunManager.complete_difficulty(completed_difficulty)
 	get_tree().change_scene_to_file("res://menus/GameOver.tscn")
 
 
@@ -1321,10 +1425,27 @@ func show_boss_special_ability() -> void:
 	)
 
 
+func get_item_icon(item_id: String) -> Texture2D:
+	var path: String = str(ITEM_DATA_PATHS.get(item_id, ""))
+	if path.is_empty():
+		return null
+	var item_data: ItemData = load(path) as ItemData
+	if item_data == null:
+		push_warning("Could not load ItemData: " + path)
+		return null
+	return item_data.icon
 
 
-
-
+func get_item_icon_by_id(item_id: String) -> Texture2D:
+	for item_path: String in RunManager.items:
+		var item_data: ItemData = load(item_path) as ItemData
+		if item_data != null and item_data.item_id == item_id:
+			return item_data.icon
+	for relic_path: String in RunManager.relics:
+		var relic_data: ItemData = load(relic_path) as ItemData
+		if relic_data != null and relic_data.item_id == item_id:
+			return relic_data.icon
+	return null
 
 
 

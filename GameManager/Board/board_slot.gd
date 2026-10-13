@@ -23,7 +23,7 @@ func set_card(new_card: GameCard) -> void:
 	card = new_card
 	if card == null:
 		return
-		occupied = true
+	occupied = true
 	card.position = Vector2.ZERO
 	card.size = size
 	card.custom_minimum_size = size

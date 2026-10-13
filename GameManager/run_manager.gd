@@ -1,10 +1,13 @@
 extends Node
 
-const RELIC_SAVE_PATH: String = "user://relics.cfg"
+const RELIC_SAVE_PATH: String = "user://relics_collection.cfg"
+const RELIC_UNLOCKS_SAVE_PATH: String = "user://relic_unlocks.cfg"
 const COLLECTION_SAVE_PATH: String = "user://collection.cfg"
 const DIFFICULTY_SAVE_PATH: String = "user://difficulty_progress.cfg"
 const BATTLE_HAND_SIZE: int = 5
 const DECK_SIZE: int = 5
+
+const RUN_LENGTH_SAVE_PATH: String = "user://run_length_progress.cfg"
 
 const BUFF_EXTRA_CARD_POWER: String = "extra_card_power"
 const BUFF_WEAKENING_CURSE: String = "weakening_curse"
@@ -29,6 +32,9 @@ var run_active: bool = false
 var run_encounter_count: int = 12
 var run_boss_count: int = 2
 
+var standard_run_unlocked: bool = false
+var long_run_unlocked: bool = false
+
 var current_room_id: int = -1
 var selected_room_id: int = -1
 var map_data: Array[Dictionary] = []
@@ -45,6 +51,8 @@ var encounter_coin_flip_done: bool = false
 
 var items: Array[String] = []
 var relics: Array[String] = []
+var unlocked_relic_ids: Array[String] = []
+
 
 var reward_points: int = 0
 
@@ -80,6 +88,7 @@ func _ready() -> void:
 	load_difficulty_progress()
 	load_card_collection()
 	load_relics()
+	load_run_length_progress()
 
 
 func start_new_run() -> void:
@@ -651,14 +660,95 @@ func load_difficulty_progress() -> void:
 	hard_completed = bool(config.get_value("difficulty", "hard_completed", false))
 
 
+func save_relic_collection() -> void:
+	var config := ConfigFile.new()
+	config.set_value("relics", "unlocked_relic_ids", unlocked_relic_ids)
+	var error := config.save(RELIC_SAVE_PATH)
+	if error != OK:
+		push_error("Failed to save relic collection: " + str(error))
 
 
+func load_relic_collection() -> void:
+	var config := ConfigFile.new()
+	var error := config.load(RELIC_SAVE_PATH)
+	if error != OK:
+		return
+	var saved_ids: Array = config.get_value("relics", "unlocked_relic_ids", [])
+	unlocked_relic_ids.clear()
+	for relic_id in saved_ids:
+		unlocked_relic_ids.append(str(relic_id))
 
 
+func save_relic_unlocks() -> void:
+	var config := ConfigFile.new()
+	config.set_value("relics", "unlocked_ids", unlocked_relic_ids)
+	var error: Error = config.save(RELIC_UNLOCKS_SAVE_PATH)
+	if error != OK:
+		push_error("Failed to save relic unlocks: " + str(error))
 
 
+func load_relic_unlocks() -> void:
+	var config := ConfigFile.new()
+	var error: Error = config.load(RELIC_UNLOCKS_SAVE_PATH)
+	if error != OK:
+		unlocked_relic_ids.clear()
+		return
+	var saved_ids: Array = config.get_value("relics", "unlocked_ids", [])
+	unlocked_relic_ids.clear()
+	for relic_id in saved_ids:
+		var id: String = str(relic_id)
+		if not unlocked_relic_ids.has(id):
+			unlocked_relic_ids.append(id)
 
 
+func unlock_relic_permanently(relic: ItemData) -> void:
+	if relic == null or relic.item_id.is_empty():
+		return
+	if not unlocked_relic_ids.has(relic.item_id):
+		unlocked_relic_ids.append(relic.item_id)
+		save_relic_unlocks()
+		print("Permanently unlocked relic: ", relic.item_name)
+
+
+func is_relic_unlocked(relic_id: String) -> bool:
+	return unlocked_relic_ids.has(relic_id)
+
+
+func is_run_length_unlocked(run_length: String) -> bool:
+	match run_length.to_lower():
+		"short":
+			return true
+		"standard":
+			return standard_run_unlocked
+		"long":
+			return long_run_unlocked
+	return false
+
+
+func complete_run_length(run_length: String) -> void:
+	match run_length.to_lower():
+		"short":
+			standard_run_unlocked = true
+		"standard":
+			long_run_unlocked = true
+	save_run_length_progress()
+
+
+func save_run_length_progress() -> void:
+	var config := ConfigFile.new()
+	config.set_value("progress", "standard_unlocked", standard_run_unlocked)
+	config.set_value("progress", "long_unlocked", long_run_unlocked)
+	config.save(RUN_LENGTH_SAVE_PATH)
+
+
+func load_run_length_progress() -> void:
+	var config := ConfigFile.new()
+	if config.load(RUN_LENGTH_SAVE_PATH) != OK:
+		standard_run_unlocked = false
+		long_run_unlocked = false
+		return
+	standard_run_unlocked = config.get_value("progress", "standard_unlocked", false)
+	long_run_unlocked = config.get_value("progress", "long_unlocked", false)
 
 
 
