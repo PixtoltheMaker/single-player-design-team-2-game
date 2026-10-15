@@ -151,6 +151,12 @@ mouse_filter = 2
 theme_override_constants/separation = 3
 
 [node name="BonusIcons" type="HBoxContainer" parent="BonusContainer" unique_id=383506447]
+
+[node name="AbilityLabel" type="Label" parent="BonusContainer"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+
 layout_mode = 2
 theme_override_constants/separation = 3
 alignment = 1

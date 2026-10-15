@@ -40,7 +40,7 @@ func generate_item_choices() -> void:
 		if item == null:
 			continue
 		if item.is_relic:
-			if RunManager.has_relic(item.item_id):
+			if RunManager.is_relic_unlocked(item.item_id):
 				continue
 		else:
 			if RunManager.has_item(item.item_id):
@@ -100,7 +100,7 @@ func _on_item_chosen(index: int) -> void:
 	var item_path: String = offered_item_paths[index]
 	var item: ItemData = offered_items[index]
 	print("Selected item: ", item.item_name)
-	RunManager.add_item(item_path)
+	RunManager.give_item(item)
 	finish_item_room()
 
 

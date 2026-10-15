@@ -22,7 +22,7 @@ var selected_bosses: int = 2
 
 func _ready() -> void:
 	tutorial_button.pressed.connect(_on_tutorial_pressed)
-	if RunManager.is_difficulty_unlocked("normal"):
+	if RunManager.is_run_length_unlocked("standard"):
 		select_normal()
 	else:
 		select_easy()
@@ -56,11 +56,11 @@ func select_hard() -> void:
 
 func update_button_states() -> void:
 	easy_button.text = "SHORT RUN"
-	if RunManager.is_difficulty_unlocked("normal"):
+	if RunManager.is_run_length_unlocked("standard"):
 		normal_button.text = "STANDARD RUN"
 	else:
 		normal_button.text = "STANDARD RUN\n🔒 Beat Short to unlock"
-	if RunManager.is_difficulty_unlocked("hard"):
+	if RunManager.is_run_length_unlocked("long"):
 		hard_button.text = "LONG RUN"
 	else:
 		hard_button.text = "LONG RUN\n🔒 Beat Normal to unlock"
@@ -91,16 +91,23 @@ func _on_easy_button_pressed() -> void:
 
 
 func _on_normal_button_pressed() -> void:
-	normal_button.disabled = not RunManager.is_difficulty_unlocked("normal")
+	normal_button.disabled = not RunManager.is_run_length_unlocked("standard")
 	select_normal()
 
 
 func _on_hard_button_pressed() -> void:
-	hard_button.disabled = not RunManager.is_difficulty_unlocked("hard")
+	hard_button.disabled = not RunManager.is_run_length_unlocked("long")
 	select_hard()
 
 
 func _on_start_button_pressed() -> void:
+	match selected_run_length:
+		RunLength.SHORT:
+			RunManager.current_run_length = "short"
+		RunLength.STANDARD:
+			RunManager.current_run_length = "standard"
+		RunLength.LONG:
+			RunManager.current_run_length = "long"
 	RunManager.run_encounter_count = selected_encounters
 	RunManager.run_boss_count = selected_bosses
 	RunManager.start_new_run()
@@ -112,8 +119,8 @@ func _on_back_button_pressed() -> void:
 
 
 func update_difficulty_buttons() -> void:
-	var normal_unlocked: bool = RunManager.is_difficulty_unlocked("normal")
-	var hard_unlocked: bool = RunManager.is_difficulty_unlocked("hard")
+	var normal_unlocked: bool = RunManager.is_run_length_unlocked("standard")
+	var hard_unlocked: bool = RunManager.is_run_length_unlocked("long")
 	normal_button.disabled = not normal_unlocked
 	hard_button.disabled = not hard_unlocked
 	update_button_states()

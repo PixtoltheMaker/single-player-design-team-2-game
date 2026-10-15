@@ -22,6 +22,7 @@ var is_selected: bool = false
 @onready var card_back: Panel = $CardBack
 @onready var bonus_container: VBoxContainer = $BonusContainer
 @onready var bonus_icons: HBoxContainer = $BonusContainer/BonusIcons
+@onready var ability_label: Label = $BonusContainer/AbilityLabel
 
 var petrified: bool = false
 var petrify_used: bool = false
@@ -36,6 +37,10 @@ func _ready() -> void:
 	update_card()
 	update_owner_visual()
 	clear_bonus_display()
+	# Bonus text is shown only by Godot's hover tooltip, never inside the card.
+	bonus_container.hide()
+	mouse_entered.connect(_on_card_mouse_entered)
+	mouse_exited.connect(_on_card_mouse_exited)
 
 
 func set_card_data(new_data: CardData) -> void:
@@ -58,6 +63,7 @@ func update_card() -> void:
 	down_value.text = str(data.down)
 	left_value.text = str(data.left)
 	update_rarity()
+	update_ability_bonus_display()
 
 
 func update_rarity() -> void:
@@ -117,6 +123,9 @@ func set_card_hidden(is_hidden: bool) -> void:
 		left_value.visible = not is_hidden
 	if name_label != null:
 		name_label.visible = not is_hidden
+	if bonus_container != null:
+		bonus_container.hide()
+	tooltip_text = "" if is_hidden else _build_hover_info()
 
 
 func reveal_card() -> void:
@@ -136,6 +145,9 @@ func reveal_card() -> void:
 		left_value.visible = true
 	if name_label != null:
 		name_label.visible = true
+	tooltip_text = _build_hover_info()
+	if bonus_container != null:
+		bonus_container.hide()
 	visible = true
 
 
@@ -157,7 +169,7 @@ func clear_bonus_display() -> void:
 	bonus_tooltip = ""
 	if bonus_container != null:
 		bonus_container.hide()
-	tooltip_text = ""
+	tooltip_text = _build_hover_info() if is_node_ready() else ""
 
 
 func set_bonus_sources(sources: Array[Dictionary]) -> void:
@@ -166,11 +178,9 @@ func set_bonus_sources(sources: Array[Dictionary]) -> void:
 	for source: Dictionary in bonus_sources:
 		displayed_bonus += int(source.get("amount", 0))
 	update_bonus_icons()
-	if bonus_sources.is_empty() or bonus_icons.get_child_count() == 0:
-		bonus_container.hide()
-		return
-	bonus_container.show()
 	update_bonus_tooltip()
+	if bonus_container != null:
+		bonus_container.hide()
 
 
 func update_bonus_tooltip() -> void:
@@ -198,7 +208,61 @@ func update_bonus_tooltip() -> void:
 	else:
 		tooltip += str(displayed_bonus)
 	bonus_tooltip = tooltip
-	tooltip_text = bonus_tooltip
+	tooltip_text = _build_hover_info()
+
+
+func _build_hover_info() -> String:
+	if data == null:
+		return ""
+
+	var info := data.card_name + "\n"
+	info += "Base Values: UP " + str(data.up) + " | RIGHT " + str(data.right)
+	info += " | DOWN " + str(data.down) + " | LEFT " + str(data.left)
+
+	match data.rarity:
+		CardData.Rarity.RARE:
+			info += "\n\nRARE CARD BONUS\n+1 to all sides (max 10)"
+			info += "\nRare cards have improved stats."
+		CardData.Rarity.MYTHIC:
+			info += "\n\nMYTHIC CARD BONUS\n+2 to all sides (max 10)"
+			if not data.mythic_ability.strip_edges().is_empty():
+				info += "\n\nABILITY: " + _format_ability_name(data.mythic_ability)
+				if not data.mythic_description.strip_edges().is_empty():
+					info += "\n" + data.mythic_description
+
+	if not bonus_sources.is_empty():
+		info += "\n\nActive Bonuses:"
+		for source: Dictionary in bonus_sources:
+			var amount := int(source.get("amount", 0))
+			var amount_text := ("+" if amount >= 0 else "") + str(amount)
+			info += "\n" + str(source.get("name", "Bonus")) + ": " + amount_text
+	return info
+
+
+func _on_card_mouse_entered() -> void:
+	if card_back != null and card_back.visible:
+		tooltip_text = ""
+		return
+	tooltip_text = _build_hover_info()
+
+
+func _on_card_mouse_exited() -> void:
+	# Clear the tooltip source after the pointer leaves the card.
+	tooltip_text = ""
+	if bonus_container != null:
+		bonus_container.hide()
+
+
+func update_ability_bonus_display() -> void:
+	# Keep the in-card container hidden; all detail is displayed in a hover tooltip.
+	if bonus_container != null:
+		bonus_container.hide()
+	if is_node_ready():
+		tooltip_text = _build_hover_info()
+
+
+func _format_ability_name(ability_id: String) -> String:
+	return ability_id.replace("_", " ").capitalize()
 
 
 func save_starting_position() -> void:

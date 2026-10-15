@@ -815,6 +815,8 @@ func handle_encounter_complete() -> void:
 	RunManager.complete_selected_room()
 	if RunManager.is_run_complete():
 		result_label.text = "FINAL BOSS DEFEATED!\nYOU WIN!"
+		RunManager.complete_run_length(RunManager.current_run_length)
+		RunManager.run_won = true
 		RunManager.run_active = false
 		RunManager.clear_battle_hand()
 		RunManager.clear_encounter_progress()

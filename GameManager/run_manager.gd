@@ -34,6 +34,7 @@ var run_boss_count: int = 2
 
 var standard_run_unlocked: bool = false
 var long_run_unlocked: bool = false
+var current_run_length: String = "short"
 
 var current_room_id: int = -1
 var selected_room_id: int = -1
@@ -88,6 +89,7 @@ func _ready() -> void:
 	load_difficulty_progress()
 	load_card_collection()
 	load_relics()
+	load_relic_unlocks()
 	load_run_length_progress()
 
 
@@ -382,33 +384,43 @@ func save_relics() -> void:
 func load_relics() -> void:
 	var config := ConfigFile.new()
 	var error: Error = config.load(RELIC_SAVE_PATH)
-	if error != OK:
-		print("No relic save found.")
-		relics.clear()
-		return
-	var saved_relics: Variant = config.get_value("relics", "unlocked_relics", [])
 	relics.clear()
-	if saved_relics is Array:
-		for relic_path: Variant in saved_relics:
-			if relic_path is String:
-				var path: String = String(relic_path)
-				if ResourceLoader.exists(path):
-					relics.append(path)
-	print("Loaded permanent relics: ", relics)
-
+	if error == OK:
+		var saved_relics: Variant = config.get_value("relics", "unlocked_relics", [])
+		if saved_relics is Array:
+			for relic_path: Variant in saved_relics:
+				if relic_path is String and ResourceLoader.exists(String(relic_path)) and not relics.has(String(relic_path)):
+					relics.append(String(relic_path))
+	# Migrate path-based saves into normalized IDs, preserving old unlocks.
+	for relic_path: String in relics:
+		var relic_data := load(relic_path) as ItemData
+		if relic_data != null:
+			var normalized_id := relic_data.item_id.strip_edges().to_lower()
+			if not normalized_id.is_empty() and not unlocked_relic_ids.has(normalized_id):
+				unlocked_relic_ids.append(normalized_id)
+	load_relic_unlocks()
+	for relic_path: String in relics:
+		var relic_data := load(relic_path) as ItemData
+		if relic_data != null:
+			var normalized_id := relic_data.item_id.strip_edges().to_lower()
+			if not unlocked_relic_ids.has(normalized_id):
+				unlocked_relic_ids.append(normalized_id)
+	save_relic_unlocks()
+	print("Loaded permanent relic paths: ", relics)
+	print("Loaded permanent relic IDs: ", unlocked_relic_ids)
 
 func give_item(item: ItemData) -> void:
 	if item == null:
+		push_error("Cannot give a null item.")
 		return
-	var item_path: String = item.resource_path
+	var item_path := item.resource_path
 	if item_path.is_empty():
-		push_error("Item has no resource path.")
+		push_error("Item has no resource path: " + item.item_name)
 		return
 	if item.is_relic:
 		add_relic(item_path)
 	else:
 		add_item(item_path)
-
 
 func add_item(item_path: String) -> void:
 	if item_path.is_empty():
@@ -422,19 +434,23 @@ func add_item(item_path: String) -> void:
 
 
 func add_relic(relic_path: String) -> void:
-	if relic_path.is_empty():
-		return
-	if not ResourceLoader.exists(relic_path):
+	if relic_path.is_empty() or not ResourceLoader.exists(relic_path):
 		push_error("Relic does not exist: " + relic_path)
 		return
-	if relics.has(relic_path):
-		print("Relic already owned: ", relic_path)
+	var relic_data := load(relic_path) as ItemData
+	if relic_data == null or relic_data.item_id.strip_edges().is_empty():
+		push_error("Relic has invalid ItemData: " + relic_path)
 		return
-	relics.append(relic_path)
-	save_relics()
-	print("★ PERMANENT RELIC OBTAINED ★")
-	print(relic_path)
-
+	var relic_id := relic_data.item_id.strip_edges().to_lower()
+	if not relics.has(relic_path):
+		relics.append(relic_path)
+		save_relics()
+	if not unlocked_relic_ids.has(relic_id):
+		unlocked_relic_ids.append(relic_id)
+		save_relic_unlocks()
+	print("Permanent relic unlocked: ", relic_data.item_name, " | id=", relic_id)
+	print("Permanent relic paths: ", relics)
+	print("Permanent relic IDs: ", unlocked_relic_ids)
 
 func has_item(item_id: String) -> bool:
 	for item_path: String in items:
@@ -445,11 +461,7 @@ func has_item(item_id: String) -> bool:
 
 
 func has_relic(relic_id: String) -> bool:
-	for relic_path: String in relics:
-		var relic := load(relic_path) as ItemData
-		if relic != null and relic.item_id == relic_id:
-			return true
-	return false
+	return is_relic_unlocked(relic_id)
 
 
 func reset_combat_item_state() -> void:
@@ -681,6 +693,12 @@ func load_relic_collection() -> void:
 
 func save_relic_unlocks() -> void:
 	var config := ConfigFile.new()
+	var normalized_ids: Array[String] = []
+	for relic_id: String in unlocked_relic_ids:
+		var normalized_id := relic_id.strip_edges().to_lower()
+		if not normalized_id.is_empty() and not normalized_ids.has(normalized_id):
+			normalized_ids.append(normalized_id)
+	unlocked_relic_ids = normalized_ids
 	config.set_value("relics", "unlocked_ids", unlocked_relic_ids)
 	var error: Error = config.save(RELIC_UNLOCKS_SAVE_PATH)
 	if error != OK:
@@ -691,45 +709,58 @@ func load_relic_unlocks() -> void:
 	var config := ConfigFile.new()
 	var error: Error = config.load(RELIC_UNLOCKS_SAVE_PATH)
 	if error != OK:
-		unlocked_relic_ids.clear()
 		return
-	var saved_ids: Array = config.get_value("relics", "unlocked_ids", [])
-	unlocked_relic_ids.clear()
-	for relic_id in saved_ids:
-		var id: String = str(relic_id)
-		if not unlocked_relic_ids.has(id):
-			unlocked_relic_ids.append(id)
-
+	var saved_ids: Variant = config.get_value("relics", "unlocked_ids", [])
+	if saved_ids is Array:
+		for relic_id: Variant in saved_ids:
+			var normalized_id := str(relic_id).strip_edges().to_lower()
+			if not normalized_id.is_empty() and not unlocked_relic_ids.has(normalized_id):
+				unlocked_relic_ids.append(normalized_id)
 
 func unlock_relic_permanently(relic: ItemData) -> void:
-	if relic == null or relic.item_id.is_empty():
+	if relic == null:
 		return
-	if not unlocked_relic_ids.has(relic.item_id):
-		unlocked_relic_ids.append(relic.item_id)
-		save_relic_unlocks()
-		print("Permanently unlocked relic: ", relic.item_name)
+	var path := relic.resource_path
+	if not path.is_empty():
+		add_relic(path)
+	else:
+		var normalized_id := relic.item_id.strip_edges().to_lower()
+		if not normalized_id.is_empty() and not unlocked_relic_ids.has(normalized_id):
+			unlocked_relic_ids.append(normalized_id)
+			save_relic_unlocks()
 
 
 func is_relic_unlocked(relic_id: String) -> bool:
-	return unlocked_relic_ids.has(relic_id)
-
+	var normalized_id := relic_id.strip_edges().to_lower()
+	if normalized_id.is_empty():
+		return false
+	if unlocked_relic_ids.has(normalized_id):
+		return true
+	# Backward compatibility: older saves stored only resource paths.
+	for relic_path: String in relics:
+		if not ResourceLoader.exists(relic_path):
+			continue
+		var relic_data := load(relic_path) as ItemData
+		if relic_data != null and relic_data.item_id.strip_edges().to_lower() == normalized_id:
+			return true
+	return false
 
 func is_run_length_unlocked(run_length: String) -> bool:
 	match run_length.to_lower():
 		"short":
 			return true
-		"standard":
+		"standard", "normal":
 			return standard_run_unlocked
-		"long":
+		"long", "hard":
 			return long_run_unlocked
 	return false
 
 
 func complete_run_length(run_length: String) -> void:
-	match run_length.to_lower():
-		"short":
+	match run_length.strip_edges().to_lower():
+		"short", "easy":
 			standard_run_unlocked = true
-		"standard":
+		"standard", "normal":
 			long_run_unlocked = true
 	save_run_length_progress()
 
