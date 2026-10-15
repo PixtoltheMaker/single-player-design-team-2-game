@@ -12,6 +12,7 @@ var is_selected: bool = false
 
 @onready var card_background: Panel = $CardBackground
 @onready var background: Panel = $Background
+@onready var rarity_frame: Panel = $RarityFrame
 @onready var artwork: TextureRect = $Artwork
 @onready var rarity_label: Label = $RarityLabel
 @onready var up_value: Label = $UpValue
@@ -20,9 +21,10 @@ var is_selected: bool = false
 @onready var left_value: Label = $LeftValue
 @onready var name_label: Label = $NameLabel
 @onready var card_back: Panel = $CardBack
-@onready var bonus_container: VBoxContainer = $BonusContainer
-@onready var bonus_icons: HBoxContainer = $BonusContainer/BonusIcons
-@onready var ability_label: Label = $BonusContainer/AbilityLabel
+@onready var bonus_label: Label = $BonusContainer/BonusVBox/BonusLabel
+@onready var ability_label: Label = $BonusContainer/BonusVBox/AbilityLabel
+@onready var bonus_container: PanelContainer = $BonusContainer
+
 
 var petrified: bool = false
 var petrify_used: bool = false
@@ -52,18 +54,48 @@ func update_card() -> void:
 	if data == null:
 		return
 	name_label.text = data.card_name
-	if data.artwork != null:
-		artwork.texture = data.artwork
-		artwork.visible = true
-	else:
-		artwork.texture = null
-		artwork.visible = false
+	var selected_artwork: Texture2D = data.artwork
+	match data.rarity:
+		CardData.Rarity.RARE:
+			if data.rare_artwork != null:
+				selected_artwork = data.rare_artwork
+		CardData.Rarity.MYTHIC:
+			if data.mythic_artwork != null:
+				selected_artwork = data.mythic_artwork
+	artwork.texture = selected_artwork
+	artwork.visible = selected_artwork != null
+	_apply_rarity_appearance()
 	up_value.text = str(data.up)
 	right_value.text = str(data.right)
 	down_value.text = str(data.down)
 	left_value.text = str(data.left)
 	update_rarity()
 	update_ability_bonus_display()
+
+
+func _apply_rarity_appearance() -> void:
+	if rarity_frame == null or card_background == null or artwork == null or data == null:
+		return
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color(0, 0, 0, 0)
+	frame_style.draw_center = false
+	frame_style.set_border_width_all(3)
+	frame_style.set_corner_radius_all(3)
+	match data.rarity:
+		CardData.Rarity.NORMAL:
+			frame_style.border_color = Color(0.65, 0.65, 0.68, 0.9)
+			artwork.modulate = Color.WHITE
+			rarity_frame.modulate = Color.WHITE
+		CardData.Rarity.RARE:
+			frame_style.border_color = Color(0.20, 0.62, 1.0, 1.0)
+			artwork.modulate = Color(0.88, 0.95, 1.12)
+			rarity_frame.modulate = Color(0.55, 0.82, 1.0)
+		CardData.Rarity.MYTHIC:
+			frame_style.border_color = Color(0.82, 0.35, 1.0, 1.0)
+			artwork.modulate = Color(1.12, 0.88, 1.18)
+			rarity_frame.modulate = Color(0.9, 0.55, 1.0)
+	if rarity_frame != null:
+		rarity_frame.add_theme_stylebox_override("panel", frame_style)
 
 
 func update_rarity() -> void:
@@ -113,6 +145,8 @@ func set_card_hidden(is_hidden: bool) -> void:
 		artwork.visible = not is_hidden
 	if rarity_label != null:
 		rarity_label.visible = not is_hidden
+	if rarity_frame != null:
+		rarity_frame.visible = not is_hidden
 	if up_value != null:
 		up_value.visible = not is_hidden
 	if right_value != null:
@@ -135,6 +169,8 @@ func reveal_card() -> void:
 		artwork.visible = true
 	if rarity_label != null:
 		rarity_label.visible = true
+	if rarity_frame != null:
+		rarity_frame.visible = true
 	if up_value != null:
 		up_value.visible = true
 	if right_value != null:

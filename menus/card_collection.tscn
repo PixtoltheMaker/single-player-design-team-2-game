@@ -70,16 +70,16 @@ custom_minimum_size = Vector2(900, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 4
 
 [node name="CardDetailsPanel" type="Panel" parent="." unique_id=839173306]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 0
-offset_left = 1071.0
+offset_left = 1048.0
 offset_top = 332.0
-offset_right = 1264.0
+offset_right = 1241.0
 offset_bottom = 778.0
 mouse_filter = 2
 
@@ -88,18 +88,22 @@ layout_mode = 0
 offset_right = 40.0
 offset_bottom = 81.0
 
-[node name="SelectedNameLabel" type="Label" parent="CardDetailsPanel/VBoxContainer" unique_id=510114862]
+[node name="ScrollContainer" type="ScrollContainer" parent="CardDetailsPanel/VBoxContainer" unique_id=567955615]
+layout_mode = 2
+vertical_scroll_mode = 0
+
+[node name="SelectedNameLabel" type="Label" parent="CardDetailsPanel/VBoxContainer/ScrollContainer" unique_id=510114862]
 layout_mode = 2
 text = "name"
 
-[node name="SelectedArtwork" type="TextureRect" parent="CardDetailsPanel/VBoxContainer" unique_id=327713064]
+[node name="SelectedArtwork" type="TextureRect" parent="CardDetailsPanel/VBoxContainer/ScrollContainer" unique_id=327713064]
 custom_maximum_size = Vector2(160, 220)
 layout_mode = 2
 
-[node name="ValuesLabel" type="Label" parent="CardDetailsPanel/VBoxContainer" unique_id=2047497410]
+[node name="ValuesLabel" type="Label" parent="CardDetailsPanel/VBoxContainer/ScrollContainer" unique_id=2047497410]
 layout_mode = 2
 
-[node name="DescriptionLabel" type="Label" parent="CardDetailsPanel/VBoxContainer" unique_id=1805760475]
+[node name="DescriptionLabel" type="Label" parent="CardDetailsPanel/VBoxContainer/ScrollContainer" unique_id=1805760475]
 layout_mode = 2
 
 [connection signal="pressed" from="MarginContainer/VBoxContainer/Header/DeckBuilderButton" to="." method="_on_deck_builder_button_pressed"]
