@@ -159,17 +159,17 @@ offset_right = 152.0
 offset_bottom = 212.0
 mouse_filter = 2
 
-[node name="BonusVBox" type="VBoxContainer" parent="BonusContainer" unique_id=1924134242]
+[node name="BonusIcons" type="HBoxContainer" parent="BonusContainer" unique_id=1161735223]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="BonusLabel" type="Label" parent="BonusContainer/BonusVBox" unique_id=1008282222]
+[node name="BonusLabel" type="Label" parent="BonusContainer" unique_id=1008282222]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.82, 0.42, 1)
 theme_override_font_sizes/font_size = 10
 text = "RARE BONUS"
 
-[node name="AbilityLabel" type="Label" parent="BonusContainer/BonusVBox" unique_id=2056770598]
+[node name="AbilityLabel" type="Label" parent="BonusContainer" unique_id=2056770598]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)

@@ -7,10 +7,10 @@ const PLAYER: int = 0
 
 @onready var collection_grid: GridContainer = $MarginContainer/VBoxContainer/ScrollContainer/CollectionGrid
 @onready var details_panel: Panel = $CardDetailsPanel
-@onready var selected_name_label: Label = $CardDetailsPanel/VBoxContainer/ScrollContainer/SelectedNameLabel
-@onready var selected_artwork: TextureRect = $CardDetailsPanel/VBoxContainer/ScrollContainer/SelectedArtwork
-@onready var values_label: Label = $CardDetailsPanel/VBoxContainer/ScrollContainer/ValuesLabel
-@onready var description_label: Label = $CardDetailsPanel/VBoxContainer/ScrollContainer/DescriptionLabel
+@onready var selected_name_label: Label = $CardDetailsPanel/VBoxContainer/VScrollBar/SelectedNameLabel
+@onready var selected_artwork: TextureRect = $CardDetailsPanel/VBoxContainer/VScrollBar/SelectedArtwork
+@onready var values_label: Label = $CardDetailsPanel/VBoxContainer/VScrollBar/ValuesLabel
+@onready var description_label: Label = $CardDetailsPanel/VBoxContainer/VScrollBar/DescriptionLabel
 @onready var main_container: MarginContainer = $MarginContainer
 @onready var main_vbox: VBoxContainer = $MarginContainer/VBoxContainer
 @onready var scroll_container: ScrollContainer = $MarginContainer/VBoxContainer/ScrollContainer

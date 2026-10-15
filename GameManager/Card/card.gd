@@ -21,9 +21,11 @@ var is_selected: bool = false
 @onready var left_value: Label = $LeftValue
 @onready var name_label: Label = $NameLabel
 @onready var card_back: Panel = $CardBack
-@onready var bonus_label: Label = $BonusContainer/BonusVBox/BonusLabel
-@onready var ability_label: Label = $BonusContainer/BonusVBox/AbilityLabel
+@onready var bonus_icons: HBoxContainer = $BonusContainer/BonusIcons
+@onready var bonus_label: Label = $BonusContainer/BonusLabel
+@onready var ability_label: Label = $BonusContainer/AbilityLabel
 @onready var bonus_container: PanelContainer = $BonusContainer
+
 
 
 var petrified: bool = false
