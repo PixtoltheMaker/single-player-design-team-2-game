@@ -32,17 +32,32 @@ func _ready() -> void:
 func generate_item_choices() -> void:
 	offered_items.clear()
 	offered_item_paths.clear()
-	var available_pool: Array[String] = item_pool.duplicate()
+	var available_pool: Array[String] = []
+	for item_path: String in item_pool:
+		if not ResourceLoader.exists(item_path):
+			continue
+		var item: ItemData = load(item_path) as ItemData
+		if item == null:
+			continue
+		if item.is_relic:
+			if RunManager.is_relic_unlocked(item.item_id):
+				continue
+		else:
+			if RunManager.has_item(item.item_id):
+				continue
+		available_pool.append(item_path)
 	available_pool.shuffle()
 	var amount: int = mini(3, available_pool.size())
 	for i: int in range(amount):
 		var item_path: String = available_pool[i]
-		var resource: Resource = load(item_path)
-		if resource is ItemData:
-			var item: ItemData = resource as ItemData
-			offered_items.append(item)
-			offered_item_paths.append(item_path)
+		var item: ItemData = load(item_path) as ItemData
+		if item == null:
+			continue
+		offered_items.append(item)
+		offered_item_paths.append(item_path)
 	create_item_buttons()
+	if offered_items.is_empty():
+		print("No new item rewards available.")
 
 
 func create_item_buttons() -> void:
@@ -85,7 +100,7 @@ func _on_item_chosen(index: int) -> void:
 	var item_path: String = offered_item_paths[index]
 	var item: ItemData = offered_items[index]
 	print("Selected item: ", item.item_name)
-	RunManager.add_item(item_path)
+	RunManager.give_item(item)
 	finish_item_room()
 
 

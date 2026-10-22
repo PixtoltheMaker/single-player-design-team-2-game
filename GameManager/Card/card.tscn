@@ -2,12 +2,18 @@
 
 [ext_resource type="Script" uid="uid://cydf2atyihvli" path="res://GameManager/Card/card.gd" id="1_e46js"]
 [ext_resource type="Resource" uid="uid://brak2ksrgiom1" path="res://GameManager/Card/Type/dragons/RedDragon.tres" id="2_1er02"]
-[ext_resource type="Texture2D" uid="uid://dxap5x47n8ngx" path="res://background/IMG_02524.png" id="3_yifny"]
+[ext_resource type="Texture2D" uid="uid://castisjesivkg" path="res://GameManager/Card/Art/background/card front.png" id="3_nl4ll"]
+[ext_resource type="Texture2D" uid="uid://d1f7f7hh41tyl" path="res://GameManager/Card/Art/background/card back.png" id="4_0t4us"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yifny"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nl4ll"]
-texture = ExtResource("3_yifny")
+texture = ExtResource("3_nl4ll")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1vivr"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1vivr"]
+texture = ExtResource("4_0t4us")
 
 [node name="card" type="Control" unique_id=953183884]
 custom_minimum_size = Vector2(160, 220)
@@ -36,14 +42,22 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -9.0
-offset_top = -6.0
-offset_right = 9.0
-offset_bottom = 8.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_nl4ll")
+
+[node name="RarityFrame" type="Panel" parent="." unique_id=351772744]
+visible = false
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1vivr")
 
 [node name="Artwork" type="TextureRect" parent="." unique_id=1618916685]
 layout_mode = 1
@@ -65,11 +79,10 @@ stretch_mode = 5
 [node name="RarityLabel" type="Label" parent="." unique_id=1194429992]
 z_index = 1
 layout_mode = 0
-offset_left = 46.0
-offset_top = -4.0
-offset_right = 116.0
-offset_bottom = 24.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
+offset_left = -6.0
+offset_top = 17.0
+offset_right = 64.0
+offset_bottom = 45.0
 theme_override_font_sizes/font_size = 16
 text = "N"
 horizontal_alignment = 1
@@ -78,10 +91,10 @@ vertical_alignment = 1
 [node name="UpValue" type="Label" parent="." unique_id=1294770993]
 z_index = 1
 layout_mode = 0
-offset_left = 66.0
-offset_top = 11.0
-offset_right = 92.0
-offset_bottom = 39.0
+offset_left = 64.0
+offset_top = 17.0
+offset_right = 90.0
+offset_bottom = 45.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "10"
@@ -127,11 +140,49 @@ vertical_alignment = 1
 [node name="NameLabel" type="Label" parent="." unique_id=1529218321]
 layout_mode = 0
 offset_left = 1.0
-offset_top = 155.0
+offset_top = -10.0
 offset_right = 160.0
-offset_bottom = 183.0
+offset_bottom = 18.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 17
 text = "RED DRAGON"
 horizontal_alignment = 1
 vertical_alignment = 2
+
+[node name="BonusContainer" type="PanelContainer" parent="." unique_id=1750784740]
+visible = false
+z_index = 5
+layout_mode = 0
+offset_left = 8.0
+offset_top = 112.0
+offset_right = 152.0
+offset_bottom = 212.0
+mouse_filter = 2
+
+[node name="BonusIcons" type="HBoxContainer" parent="BonusContainer" unique_id=1161735223]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BonusLabel" type="Label" parent="BonusContainer" unique_id=1008282222]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.42, 1)
+theme_override_font_sizes/font_size = 10
+text = "RARE BONUS"
+
+[node name="AbilityLabel" type="Label" parent="BonusContainer" unique_id=2056770598]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "Rare ability description"
+autowrap_mode = 2
+
+[node name="CardBack" type="Panel" parent="." unique_id=1771475370]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_1vivr")

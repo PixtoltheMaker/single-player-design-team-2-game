@@ -5,7 +5,10 @@ const COMPUTER := 1
 const CARD_SCENE: PackedScene = preload("res://GameManager/Card/card.tscn")
 const RUN_INVENTORY = preload("uid://bqe5tibyclgvm")
 const INVENTORY_SCENE: PackedScene = preload("res://menus/run_inventory.tscn")
-
+const ITEM_DATA_PATHS: Dictionary = {
+	"iron_sword": "res://GameManager/Map/rooms/Item/Weapons/Iron_Sword.tres",
+	"ancient_sword": "res://GameManager/Map/rooms/Item/Relics/Ancient_Sword.tres"
+}
 
 enum AIDifficulty {
 	NORMAL,
@@ -65,6 +68,7 @@ var board: Array = [
 @onready var coin_label: Label = $CoinFlipPanel/VBoxContainer/CoinLabel
 @onready var coin_result_label: Label = $CoinFlipPanel/VBoxContainer/ResultLabel
 @onready var flip_button: Button = $CoinFlipPanel/VBoxContainer/FlipButton
+@onready var combat_info_label: Label = $UI/VBoxContainer/HBoxContainer/CombatInfoLabel
 
 
 var current_player: int = PLAYER
@@ -78,20 +82,25 @@ var enemy_combat_value_bonus: int = 0
 var player_goes_first: bool = false
 var coin_flip_finished: bool = false
 
+var boss_special_ability: String = ""
+var boss_ability_active: bool = false
+
+var boss_vengeance_active: bool = false
+var boss_dark_pact_used: bool = false
+var boss_first_strike_done: bool = false
+
 
 func _ready() -> void:
-	print("=== BATTLE SCENE ENTERED ===")
-	print("run_defeated = ", run_defeated)
-	print("run_active = ", RunManager.run_active)
-	print("run_ending = ", RunManager.run_ending)
-	print("run_won = ", RunManager.run_won)
 	RunManager.reset_combat_item_state()
 	audio_manager.play_battle_music()
 	for slot in board_container.get_children():
 		if slot is BoardSlot:
 			slot.slot_clicked.connect(_on_slot_clicked)
 	setup_roguelite_combat()
-	start_coin_flip()
+	if should_show_coin_flip():
+		start_coin_flip()
+	else:
+		start_hidden_coin_flip()
 
 
 func _on_slot_clicked(slot: BoardSlot) -> void:
@@ -123,10 +132,12 @@ func _on_card_clicked(card: GameCard) -> void:
 		return
 	if card.owner_id != PLAYER:
 		return
-	if selected_card != null:
-		selected_card.position.y = 0
+	if selected_card != null and selected_card != card:
+		selected_card.return_to_starting_position()
 	selected_card = card
+	selected_card.is_selected = true
 	selected_card.position.y = -20
+	selected_card.position.x = 60
 	AudioManager.play_sfx("card_select")
 	print("Selected: ", card.data.card_name)
 
@@ -135,14 +146,29 @@ func place_card(card: GameCard, slot: BoardSlot) -> void:
 	var index: int = slot.slot_index
 	board[index] = card
 	slot.card = card
-	card.board_position = Vector2i(index % 3, int(float(index) / 3.0))
+	card.board_position = Vector2i(index % 3, int(float(index) / 3.0)
+	)
 	card.reparent(slot)
 	card.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card.position = Vector2.ZERO
 	card.size = slot.size
 	card.custom_minimum_size = slot.size
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if card.owner_id == COMPUTER:
+		card.reveal_card()
+		card.visible = true
+	if card.owner_id == PLAYER:
+		if RunManager.has_combat_buff("first_strike"):
+			if not RunManager.first_strike_used:
+				RunManager.first_strike_used = true
+				RunManager.first_strike_active = true
+				print("FIRST STRIKE ACTIVATED!")
 	check_captures(card)
+	if card.owner_id == COMPUTER:
+		if RunManager.current_combat_type == "boss":
+			if RunManager.boss_special_ability == "vengeance":
+				RunManager.boss_vengeance_active = false
+	RunManager.first_strike_active = false
 	update_score()
 	AudioManager.play_sfx("card_place")
 	print(card.data.card_name, " placed in slot ", index)
@@ -170,18 +196,29 @@ func check_direction(card: GameCard, target_position: Vector2i, direction: Strin
 	var enemy: GameCard = get_card_at(target_position)
 	if enemy == null:
 		return
+	if card.petrified:
+		print(card.data.card_name, " is petrified and cannot capture.")
+		return
 	if enemy.owner_id == card.owner_id:
 		return
 	var attack_value: int = get_card_attack_power(card, direction, enemy)
 	var defense_value: int = get_card_defense_power(enemy, get_opposite_direction(direction))
 	print(card.data.card_name, " attacks ", enemy.data.card_name, " | ", attack_value, " vs ", defense_value)
 	var can_capture: bool = false
-	if card.owner_id == PLAYER and RunManager.has_relic("ancient_sword"):
-		can_capture = attack_value >= defense_value
+	if card.owner_id == PLAYER:
+		if RunManager.has_relic("ancient_sword"):
+			can_capture = attack_value >= defense_value
+		else:
+			can_capture = attack_value > defense_value
 	else:
 		can_capture = attack_value > defense_value
 	if can_capture:
 		capture_card(enemy, card.owner_id)
+	if card.has_mythic_ability("Petrify"):
+		if not card.petrify_used:
+			card.petrify_used = true
+			enemy.petrified = true
+			print(card.data.card_name, " petrified ", enemy.data.card_name)
 		return
 	if card.owner_id == PLAYER:
 		if RunManager.has_item("twin_blades"):
@@ -199,17 +236,29 @@ func check_direction(card: GameCard, target_position: Vector2i, direction: Strin
 					if attack_value == defense_value + 1:
 						RunManager.lucky_charm_used = true
 						print("Lucky Charm prevented a capture!")
+						return
 
 
 func capture_card(card: GameCard, new_owner: int) -> void:
 	if card == null:
 		return
+	if card.has_mythic_ability("Divine_Shield"):
+		if not card.divine_shield_used:
+			card.divine_shield_used = true
+			print(card.data.card_name, " activated DIVINE SHIELD!")
+			AudioManager.play_sfx("card_capture")
+			return
 	if card.owner_id == PLAYER and new_owner == COMPUTER:
 		if guardian_relic_protects(card):
 			return
 		if guardian_plate_protects(card):
 			return
 	card.set_card_owner(new_owner)
+	if RunManager.current_combat_type == "boss":
+		if RunManager.boss_special_ability == "vengeance":
+			if new_owner == PLAYER:
+				RunManager.boss_vengeance_active = true
+				print("BOSS VENGEANCE ACTIVATED!")
 	AudioManager.play_sfx("card_capture")
 	print(card.data.card_name, " was captured!")
 
@@ -260,16 +309,6 @@ func get_empty_slots() -> Array[BoardSlot]:
 	return empty_slots
 
 
-func computer_place_card(card: GameCard) -> void:
-	var empty_slots := get_empty_slots()
-	if empty_slots.is_empty():
-		end_game()
-		return
-	var chosen_slot: BoardSlot = empty_slots.pick_random()
-	place_card(card, chosen_slot)
-	finish_turn()
-
-
 func board_full() -> bool:
 	for space in board:
 		if space == null:
@@ -285,7 +324,7 @@ func get_scores() -> Array[int]:
 			continue
 		if card.owner_id == PLAYER:
 			player_score += 1
-		elif card.owner_id == COMPUTER:
+		if card.owner_id == COMPUTER:
 			computer_score += 1
 	for child in player_hand.get_children():
 		if child is GameCard:
@@ -532,14 +571,20 @@ func setup_roguelite_combat() -> void:
 	continue_button.hide()
 	setup_combat_buffs()
 	setup_combat_type()
+	if RunManager.current_combat_type == "boss":
+		if RunManager.boss_special_ability.is_empty():
+			RunManager.choose_boss_special_ability()
 	update_health_display()
 	create_player_hand_from_run()
 	create_enemy_hand()
+	show_boss_special_ability()
+	show_combat_information()
 	update_encounter_progress()
 	current_player = PLAYER
 	game_over = false
 	update_turn_label()
 	update_scores()
+
 
 func update_health_display() -> void:
 	health_label.text = ("HP: " + str(RunManager.player_health) + " / " + str(RunManager.player_max_health))
@@ -581,6 +626,10 @@ func create_player_hand_from_run() -> void:
 		card.data = card_data
 		card.update_card()
 		card.set_card_owner(PLAYER)
+		get_card_bonus_sources(card)
+		await get_tree().process_frame
+		card.save_starting_position()
+		card.reset_combat_abilities()
 		card.card_clicked.connect(_on_card_clicked)
 		print(
 			"Battle card created: ",
@@ -615,6 +664,7 @@ func create_enemy_hand() -> void:
 	var shuffled_pool: Array[String] = pool.duplicate()
 	shuffled_pool.shuffle()
 	var cards_to_create: int = mini(5, shuffled_pool.size())
+	var can_see_enemy_hand: bool = RunManager.has_item("scrying_lens")
 	for i: int in range(cards_to_create):
 		var card_path: String = shuffled_pool[i]
 		var resource: Resource = load(card_path)
@@ -627,6 +677,14 @@ func create_enemy_hand() -> void:
 			card.data = card_data
 			card.update_card()
 			card.set_card_owner(COMPUTER)
+			card.reset_combat_abilities()
+			get_card_bonus_sources(card)
+			if can_see_enemy_hand:
+				card.set_card_hidden(false)
+				card.visible = true
+			else:
+				card.set_card_hidden(true)
+				card.visible = true
 
 
 func update_scores() -> void:
@@ -700,6 +758,19 @@ func handle_combat_loss(_player_score: int, _computer_score: int) -> void:
 	match RunManager.current_combat_type:
 		"boss":
 			result_label.text = ("Boss Match Lost!\n" + "Lost 1 Health\n" + "Boss Wins: " + str(RunManager.encounter_wins) + " / 3")
+			if RunManager.current_combat_type == "boss":
+				if RunManager.boss_special_ability == "dark_pact":
+					if not RunManager.boss_dark_pact_used:
+						RunManager.boss_dark_pact_used = true
+						result_label.text = (
+						"Dark Pact!\n"
+						+ "The Boss ignored its defeat!"
+						+ "\nLost 1 Health"
+						)
+			print("DARK PACT ACTIVATED!")
+			continue_button.text = "Try Again"
+			continue_button.show()
+			return
 		"elite":
 			result_label.text = ("Elite Match Lost!\n" + "Lost 1 Health\n" + "Elite Wins: " + str(RunManager.encounter_wins) + " / 2")
 		_:
@@ -744,6 +815,8 @@ func handle_encounter_complete() -> void:
 	RunManager.complete_selected_room()
 	if RunManager.is_run_complete():
 		result_label.text = "FINAL BOSS DEFEATED!\nYOU WIN!"
+		RunManager.complete_run_length(RunManager.current_run_length)
+		RunManager.run_won = true
 		RunManager.run_active = false
 		RunManager.clear_battle_hand()
 		RunManager.clear_encounter_progress()
@@ -774,6 +847,96 @@ func setup_combat_buffs() -> void:
 	print("============================")
 
 
+func get_card_bonus_sources(card: GameCard) -> Array[Dictionary]:
+	var sources: Array[Dictionary] = []
+	if card == null or card.data == null:
+		return sources
+	if card.owner_id == PLAYER:
+		if RunManager.has_item("iron_sword"):
+			sources.append({
+				"name": "Iron Sword",
+				"type": "item",
+				"amount": 1,
+				"icon": get_item_icon("iron_sword")
+			})
+		sources.append({
+				"name": "Ancient Sword",
+				"type": "relic",
+				"amount": 2,
+				"icon": get_item_icon("ancient_sword")
+			})
+		if RunManager.has_item("chainmail") and not RunManager.chainmail_used:
+			sources.append({
+				"name": "Chainmail",
+				"type": "item",
+				"amount": 1,
+				"icon": get_item_icon_by_id("chainmail")
+			})
+		if RunManager.has_combat_buff("extra_card_power"):
+			sources.append({
+				"name": "Power Surge",
+				"type": "buff",
+				"amount": 1
+			})
+		if RunManager.has_combat_buff("first_strike"):
+			if RunManager.first_strike_active:
+				sources.append({
+					"name": "First Strike",
+					"type": "buff",
+					"amount": 2
+				})
+		if RunManager.has_combat_buff("last_stand"):
+			if RunManager.player_health <= 1:
+				sources.append({
+					"name": "Last Stand",
+					"type": "buff",
+					"amount": 2
+				})
+		if card.data.rarity == CardData.Rarity.MYTHIC:
+			match card.data.mythic_ability:
+				"Dragon_Fury":
+					sources.append({
+						"name": "Dragon Fury",
+						"type": "mythic",
+						"amount": 2
+					})
+	elif card.owner_id == COMPUTER:
+		if RunManager.has_combat_buff("weakening_curse"):
+			sources.append({
+				"name": "Weakening Curse",
+				"type": "enemy",
+				"amount": -1
+			})
+		if RunManager.current_combat_type == "boss":
+			match RunManager.boss_special_ability:
+				"brutal_might":
+					sources.append({
+						"name": "Brutal Might",
+						"type": "enemy",
+						"amount": 1
+					})
+				"blood_rush":
+					var remaining_cards: int = 0
+					for child: Node in opponent_hand.get_children():
+						if child is GameCard:
+							remaining_cards += 1
+					if remaining_cards <= 2:
+						sources.append({
+							"name": "Blood Rush",
+							"type": "enemy",
+							"amount": 2
+						})
+				"vengeance":
+					if RunManager.boss_vengeance_active:
+						sources.append({
+							"name": "Vengeance",
+							"type": "enemy",
+							"amount": 2
+						})
+	card.set_bonus_sources(sources)
+	return sources
+
+
 func get_card_attack_power(card: GameCard, direction: String, enemy_card: GameCard = null) -> int:
 	if card == null or card.data == null:
 		return 0
@@ -797,8 +960,29 @@ func get_card_attack_power(card: GameCard, direction: String, enemy_card: GameCa
 			var enemy_count: int = count_adjacent_enemies(card)
 			if enemy_count >= 2:
 				power += 1
+		if RunManager.has_combat_buff("first_strike"):
+			if RunManager.first_strike_active:
+				power += 2
+		if RunManager.has_combat_buff("last_stand"):
+			if RunManager.player_health <= 1:
+				power += 2
 	if card.owner_id == COMPUTER:
 		power += enemy_combat_value_bonus
+		if RunManager.current_combat_type == "boss":
+			if RunManager.boss_special_ability == "brutal_might":
+				power += 1
+		if RunManager.current_combat_type == "boss":
+			if RunManager.boss_special_ability == "blood_rush":
+				var remaining_cards: int = 0
+				for child: Node in opponent_hand.get_children():
+					if child is GameCard:
+						remaining_cards += 1
+				if remaining_cards <= 2:
+					power += 2
+		if RunManager.current_combat_type == "boss":
+			if RunManager.boss_special_ability == "vengeance":
+				if RunManager.boss_vengeance_active:
+					power += 2
 	power += get_mythic_attack_bonus(card, enemy_card)
 	power = maxi(power, 1)
 	return power
@@ -841,9 +1025,14 @@ func get_card_defense_power(card: GameCard, direction: String) -> int:
 			defense = card.data.left
 	if card.owner_id == PLAYER:
 		if RunManager.has_item("chainmail"):
-			defense += 1
+			if not RunManager.chainmail_used:
+				defense += 1
 		if RunManager.has_relic("guardian_relic"):
 			defense += 2
+	if card.owner_id == COMPUTER:
+		if RunManager.current_combat_type == "boss":
+			if RunManager.boss_special_ability == "fortified_cards":
+				defense += 1
 	return defense
 
 
@@ -965,6 +1154,32 @@ func get_tactical_compass_information() -> String:
 	return result
 
 
+func get_tactical_insight_information() -> String:
+	if not RunManager.has_combat_buff("tactical_insight"):
+		return ""
+	var strongest: GameCard = null
+	var strongest_total: int = -1
+	for child in opponent_hand.get_children():
+		if not child is GameCard:
+			continue
+		var card: GameCard = child
+		if card.data == null:
+			continue
+		var total: int = (card.data.up + card.data.right + card.data.down + card.data.left)
+		if total > strongest_total:
+			strongest_total = total
+			strongest = card
+	if strongest == null:
+		return ""
+	var result: String = "TACTICAL INSIGHT\n"
+	result += "Strongest Enemy Card: " + strongest.data.card_name + "\n"
+	result += "↑ " + str(strongest.data.up)
+	result += "  → " + str(strongest.data.right)
+	result += "\n↓ " + str(strongest.data.down)
+	result += "  ← " + str(strongest.data.left)
+	return result
+
+
 func handle_bonus_cache_reward() -> void:
 	if not RunManager.has_item("bonus_cache"):
 		return
@@ -979,25 +1194,29 @@ func is_mythic(card: GameCard) -> bool:
 
 
 func get_mythic_attack_bonus(card: GameCard, enemy_card: GameCard) -> int:
-	if not is_mythic(card):
+	if card == null:
+		return 0
+	if card.data == null:
+		return 0
+	if card.data.rarity != CardData.Rarity.MYTHIC:
 		return 0
 	match card.data.mythic_ability:
 		"Dragon_Fury":
+			# Dragon Fury gets its bonus when attacking.
 			return 2
 		"Blood_Hunt":
-			if enemy_card != null:
-				var enemy_power: int = maxi(
-					enemy_card.data.up,
-					maxi(
-						enemy_card.data.right,
-						maxi(
-							enemy_card.data.down,
-							enemy_card.data.left
-						)
-					)
-				)
-				if enemy_power >= 7:
-					return 1
+			# Blood Hunt gets +1 against a powerful enemy card.
+			if enemy_card == null:
+				return 0
+			if enemy_card.data == null:
+				return 0
+			var enemy_power: int = maxi(enemy_card.data.up, maxi(enemy_card.data.right, maxi(enemy_card.data.down, enemy_card.data.left)))
+			if enemy_power >= 7:
+				return 1
+		"Petrify":
+			return 0
+		"Divine_Shield":
+			return 0
 		_:
 			return 0
 	return 0
@@ -1028,10 +1247,12 @@ func _on_flip_button_pressed() -> void:
 		player_goes_first = true
 		coin_label.text = "HEADS"
 		coin_result_label.text = "PLAYER GOES FIRST!"
+		RunManager.encounter_coin_flip_done = true
 	else:
 		player_goes_first = false
 		coin_label.text = "TAILS"
 		coin_result_label.text = "COMPUTER GOES FIRST!"
+		RunManager.encounter_coin_flip_done = true
 	await get_tree().create_timer(1.0).timeout
 	finish_coin_flip()
 
@@ -1047,6 +1268,14 @@ func finish_coin_flip() -> void:
 
 
 func start_first_turn_after_coin_flip() -> void:
+	if RunManager.current_combat_type == "boss":
+		if RunManager.boss_special_ability == "first_strike":
+			current_player = COMPUTER
+			player_goes_first = false
+			update_turn_label()
+			print("BOSS FIRST STRIKE!")
+			computer_turn()
+			return
 	if player_goes_first:
 		current_player = PLAYER
 		update_turn_label()
@@ -1059,7 +1288,177 @@ func start_first_turn_after_coin_flip() -> void:
 
 
 func _on_final_boss_complete() -> void:
+	var completed_difficulty: String = ""
+	match RunManager.game_difficulty:
+		0:
+			completed_difficulty = "easy"
+		1:
+			completed_difficulty = "normal"
+		2:
+			completed_difficulty = "hard"
+	if not completed_difficulty.is_empty():
+		RunManager.complete_difficulty(completed_difficulty)
 	get_tree().change_scene_to_file("res://menus/GameOver.tscn")
+
+
+func should_show_coin_flip() -> bool:
+	if RunManager.current_combat_type == "normal":
+		return true
+	if RunManager.current_combat_type == "elite":
+		return not RunManager.encounter_coin_flip_done
+	if RunManager.current_combat_type == "boss":
+		return not RunManager.encounter_coin_flip_done
+	return true
+
+
+func start_hidden_coin_flip() -> void:
+	var result: int = randi_range(0, 1)
+	if result == 0:
+		player_goes_first = true
+		print("Hidden coin flip: PLAYER goes first.")
+	else:
+		player_goes_first = false
+		print("Hidden coin flip: COMPUTER goes first.")
+	RunManager.encounter_coin_flip_done = true
+	coin_flip_finished = true
+	coin_flip_panel.visible = false
+	start_first_turn_after_coin_flip()
+
+
+func show_combat_information() -> void:
+	var info_text: String = ""
+	if RunManager.current_combat_type == "boss":
+		var ability: String = RunManager.boss_special_ability
+		if not ability.is_empty():
+			info_text += "BOSS SPECIAL ABILITY\n"
+			info_text += get_boss_ability_name(ability) + "\n"
+			info_text += get_boss_ability_description(ability)
+			info_text += "\n\n"
+	if RunManager.has_combat_buff("tactical_insight"):
+		var strongest: GameCard = null
+		var strongest_total: int = -1
+		for child in opponent_hand.get_children():
+			if not child is GameCard:
+				continue
+			var card: GameCard = child
+			if card.data == null:
+				continue
+			var total: int = (
+				card.data.up
+				+ card.data.right
+				+ card.data.down
+				+ card.data.left
+			)
+			if total > strongest_total:
+				strongest_total = total
+				strongest = card
+		if strongest != null:
+			info_text += "TACTICAL INSIGHT\n"
+			info_text += "Strongest Enemy Card: "
+			info_text += strongest.data.card_name + "\n"
+			info_text += "↑ " + str(strongest.data.up)
+			info_text += "  → " + str(strongest.data.right)
+			info_text += "\n"
+			info_text += "↓ " + str(strongest.data.down)
+			info_text += "  ← " + str(strongest.data.left)
+	combat_info_label.text = info_text
+
+
+func get_boss_ability_pool() -> Array[String]:
+	return [
+		"brutal_might",
+		"fortified_cards",
+		"blood_rush",
+		"vengeance",
+		"first_strike",
+		"dark_pact"
+	]
+
+
+func get_boss_ability_name(ability: String) -> String:
+	match ability:
+		"brutal_might":
+			return "BRUTAL MIGHT"
+		"fortified_cards":
+			return "FORTIFIED CARDS"
+		"blood_rush":
+			return "BLOOD RUSH"
+		"vengeance":
+			return "VENGEANCE"
+		"first_strike":
+			return "FIRST STRIKE"
+		"dark_pact":
+			return "DARK PACT"
+		_:
+			return "UNKNOWN"
+
+
+func get_boss_ability_description(ability: String) -> String:
+	match ability:
+		"brutal_might":
+			return "Boss cards gain +2 attack."
+		"fortified_cards":
+			return "Boss cards gain +2 defense."
+		"blood_rush":
+			return "Boss cards gain +3 attack when 2 or fewer cards remain."
+		"vengeance":
+			return "After you capture a boss card, its next card gains +3 attack."
+		"first_strike":
+			return "The boss always takes the first turn."
+		"dark_pact":
+			return "The first boss defeat is ignored."
+		_:
+			return ""
+
+
+func show_boss_special_ability() -> void:
+	if RunManager.current_combat_type != "boss":
+		combat_info_label.text = ""
+		return
+	var ability: String = RunManager.boss_special_ability
+	if ability.is_empty():
+		combat_info_label.text = ""
+		return
+	combat_info_label.text = (
+		"BOSS SPECIAL ABILITY\n"
+		+ get_boss_ability_name(ability)
+		+ "\n"
+		+ get_boss_ability_description(ability)
+	)
+
+
+func get_item_icon(item_id: String) -> Texture2D:
+	var path: String = str(ITEM_DATA_PATHS.get(item_id, ""))
+	if path.is_empty():
+		return null
+	var item_data: ItemData = load(path) as ItemData
+	if item_data == null:
+		push_warning("Could not load ItemData: " + path)
+		return null
+	return item_data.icon
+
+
+func get_item_icon_by_id(item_id: String) -> Texture2D:
+	for item_path: String in RunManager.items:
+		var item_data: ItemData = load(item_path) as ItemData
+		if item_data != null and item_data.item_id == item_id:
+			return item_data.icon
+	for relic_path: String in RunManager.relics:
+		var relic_data: ItemData = load(relic_path) as ItemData
+		if relic_data != null and relic_data.item_id == item_id:
+			return relic_data.icon
+	return null
+
+
+
+
+
+
+
+
+
+
+
 
 
 

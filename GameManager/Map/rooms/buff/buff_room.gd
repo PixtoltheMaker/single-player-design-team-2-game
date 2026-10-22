@@ -19,32 +19,23 @@ func _ready() -> void:
 
 func generate_buff_choices() -> void:
 	offered_buffs.clear()
-	var available_pool: Array[String] = buff_pool.duplicate()
+	var available_pool: Array[String] = []
+	for buff_path: String in buff_pool:
+		if not ResourceLoader.exists(buff_path):
+			continue
+		var buff: BuffData = load(buff_path) as BuffData
+		if buff == null:
+			continue
+		if RunManager.has_combat_buff(buff.buff_id):
+			continue
+		available_pool.append(buff_path)
 	available_pool.shuffle()
 	var amount: int = mini(3, available_pool.size())
-	print("Trying to create ", amount, " buffs.")
 	for i: int in range(amount):
 		var buff_path: String = available_pool[i]
-		print("Loading buff: ", buff_path)
-		if not ResourceLoader.exists(buff_path):
-			push_error("BUFF FILE DOES NOT EXIST: " + buff_path)
+		var buff: BuffData = load(buff_path) as BuffData
+		if buff == null:
 			continue
-		var resource: Resource = load(buff_path)
-		if resource == null:
-			push_error("COULD NOT LOAD BUFF: " + buff_path)
-			continue
-		if not resource is BuffData:
-			push_error("NOT A BUFFDATA RESOURCE: " + buff_path)
-			continue
-		var buff: BuffData = resource as BuffData
-		# DEBUG INFORMATION
-		print("--------------------------------")
-		print("Loaded buff:")
-		print("ID: [", buff.buff_id, "]")
-		print("NAME: [", buff.buff_name, "]")
-		print("DESCRIPTION: [", buff.description, "]")
-		print("ICON: ", buff.icon)
-		print("--------------------------------")
 		offered_buffs.append(buff)
 	create_buff_buttons()
 

@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://cgjs16wmki41w" path="res://menus/run_inventory_entry.gd" id="1_hs78v"]
 
 [node name="RunInventoryEntry" type="Panel" unique_id=1385239169]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(180, 200)
+custom_maximum_size = Vector2(200, 240)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -30,8 +31,10 @@ stretch_mode = 5
 layout_mode = 2
 text = "h"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="DescriptionLabel" type="Label" parent="VBoxContainer" unique_id=55799859]
 layout_mode = 2
 text = "yttj"
 horizontal_alignment = 1
+autowrap_mode = 3
