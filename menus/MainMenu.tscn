@@ -15,7 +15,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ct8su")
 
-[node name="background" type="TextureRect" parent="." unique_id=1541094441]
+[node name="background" type="TextureRect" parent="." unique_id=595971861]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,7 +25,6 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("2_ot3ob")
 expand_mode = 1
-stretch_mode = 5
 
 [node name="TitleArea" type="VBoxContainer" parent="." unique_id=792947005]
 layout_mode = 1

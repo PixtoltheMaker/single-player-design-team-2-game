@@ -805,6 +805,8 @@ func update_encounter_progress() -> void:
 
 
 func handle_encounter_complete() -> void:
+	# Award money once when the encounter is fully won.
+	var money_earned: int = RunManager.award_enemy_defeat_money()
 	match RunManager.current_combat_type:
 		"elite":
 			result_label.text = "Elite Defeated!"
@@ -812,6 +814,7 @@ func handle_encounter_complete() -> void:
 			result_label.text = "Boss Defeated!"
 		_:
 			result_label.text = "Victory!"
+	result_label.text += "\n+" + str(money_earned) + " gold"
 	RunManager.complete_selected_room()
 	if RunManager.is_run_complete():
 		result_label.text = "FINAL BOSS DEFEATED!\nYOU WIN!"

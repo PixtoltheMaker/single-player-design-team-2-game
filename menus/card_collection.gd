@@ -7,10 +7,10 @@ const PLAYER: int = 0
 
 @onready var collection_grid: GridContainer = $MarginContainer/VBoxContainer/ScrollContainer/CollectionGrid
 @onready var details_panel: Panel = $CardDetailsPanel
-@onready var selected_name_label: Label = $CardDetailsPanel/VBoxContainer/VScrollBar/SelectedNameLabel
-@onready var selected_artwork: TextureRect = $CardDetailsPanel/VBoxContainer/VScrollBar/SelectedArtwork
-@onready var values_label: Label = $CardDetailsPanel/VBoxContainer/VScrollBar/ValuesLabel
-@onready var description_label: Label = $CardDetailsPanel/VBoxContainer/VScrollBar/DescriptionLabel
+@onready var selected_name_label: Label = $CardDetailsPanel/VBoxContainer/SelectedNameLabel
+@onready var selected_artwork: TextureRect = $CardDetailsPanel/VBoxContainer/SelectedArtwork
+@onready var values_label: Label = $CardDetailsPanel/VBoxContainer/ValuesLabel
+@onready var description_label: Label = $CardDetailsPanel/VBoxContainer/DescriptionLabel
 @onready var main_container: MarginContainer = $MarginContainer
 @onready var main_vbox: VBoxContainer = $MarginContainer/VBoxContainer
 @onready var scroll_container: ScrollContainer = $MarginContainer/VBoxContainer/ScrollContainer
@@ -28,6 +28,8 @@ func _ready() -> void:
 	collection_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	collection_grid.custom_minimum_size = Vector2(900, 0)
 	collection_grid.columns = 4
+	collection_grid.add_theme_constant_override("h_separation", 18)
+	collection_grid.add_theme_constant_override("v_separation", 18)
 	load_all_cards()
 	build_collection()
 	details_panel.visible = false

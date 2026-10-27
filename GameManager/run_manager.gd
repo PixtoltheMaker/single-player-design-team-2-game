@@ -487,6 +487,48 @@ func give_room_reward(base_reward: int) -> void:
 	print("Total rewards: ", reward_points)
 
 
+func award_enemy_defeat_money() -> int:
+	# Random reward based on selected game difficulty.
+	var minimum_reward: int
+	var maximum_reward: int
+	match game_difficulty:
+		0: # Easy
+			minimum_reward = 5
+			maximum_reward = 10
+		1: # Normal
+			minimum_reward = 10
+			maximum_reward = 20
+		2: # Hard
+			minimum_reward = 15
+			maximum_reward = 30
+		_:
+			minimum_reward = 10
+			maximum_reward = 20
+
+	var multiplier: int = 1
+	match current_combat_type:
+		"elite":
+			multiplier = 2
+		"boss":
+			multiplier = 3
+
+	var base_reward: int = randi_range(minimum_reward, maximum_reward)
+	var reward: int = base_reward * multiplier
+
+	# Existing money bonuses apply to combat rewards too.
+	if has_item("coin_pouch"):
+		reward += 10
+	if has_relic("lucky_crown"):
+		reward += 10
+
+	reward_points += reward
+	print("Enemy defeated! Difficulty: ", game_difficulty,
+		" | Combat: ", current_combat_type,
+		" | Money earned: ", reward,
+		" | Total money: ", reward_points)
+	return reward
+
+
 func treasure_map_bonus_reward() -> bool:
 	if not has_item("treasure_map"):
 		return false

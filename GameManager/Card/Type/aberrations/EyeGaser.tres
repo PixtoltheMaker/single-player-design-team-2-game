@@ -11,6 +11,4 @@ up = 7
 right = 6
 down = 5
 left = 6
-rare_ability = "Mind Warp"
-rare_description = "Gain +1 defense against attacks."
 metadata/_custom_type_script = "uid://b20o6xviyx7dm"
