@@ -1,25 +1,18 @@
 [gd_scene format=3 uid="uid://cxx1ggt0nwcbl"]
 
-[ext_resource type="Script" path="res://menus/post_boss_choice.gd" id="1"]
-[ext_resource type="Texture2D" path="res://background/IMG_0255.png" id="2_pi1oe"]
+[ext_resource type="Script" uid="uid://drgswyvpxgjah" path="res://menus/post_boss_choice.gd" id="1"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_d0v74"]
-texture = ExtResource("2_pi1oe")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pi1oe"]
-texture = ExtResource("2_pi1oe")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_5mmjv"]
-texture = ExtResource("2_pi1oe")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_q80cf"]
-texture = ExtResource("2_pi1oe")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_846qb"]
-texture = ExtResource("2_pi1oe")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_dsxy6"]
-texture = ExtResource("2_pi1oe")
 
 [node name="PostBossChoice" type="Control" unique_id=1441821757]
 layout_mode = 3

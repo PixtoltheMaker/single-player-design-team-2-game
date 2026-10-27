@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://durorem4p74un"
-path="res://.godot/imported/abalith.png-60d5565002dff0f97810ccf32cf0d743.ctex"
+uid="uid://et5xvsv4g5if"
+path="res://.godot/imported/Chitinous.png-ba8734dee998d97e019f6ee64b68edac.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://GameManager/Card/Type/aberrations/art/abalith.png"
-dest_files=["res://.godot/imported/abalith.png-60d5565002dff0f97810ccf32cf0d743.ctex"]
+source_file="res://GameManager/Card/Type/aberrations/art/Chitinous.png"
+dest_files=["res://.godot/imported/Chitinous.png-ba8734dee998d97e019f6ee64b68edac.ctex"]
 
 [params]
 

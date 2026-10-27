@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://dwduwcspffpnr"]
+
+[ext_resource type="Texture2D" uid="uid://bnlyk03ou46u5" path="res://GameManager/Card/Type/aberrations/art/Brainspawn.png" id="1_hxsoj"]
+[ext_resource type="Script" uid="uid://b20o6xviyx7dm" path="res://GameManager/Card/CardData.gd" id="1_o0lnl"]
+
+[resource]
+script = ExtResource("1_o0lnl")
+card_name = "Brainspawn"
+artwork = ExtResource("1_hxsoj")
+up = 6
+right = 7
+down = 4
+left = 6
+metadata/_custom_type_script = "uid://b20o6xviyx7dm"
